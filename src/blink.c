@@ -14,15 +14,13 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <string.h>
+#include <stdio.h>
 #include "sugar.h"
 
 //#define F_CPU 16000000
 
-
 //UBRRn  = USART Baud Rate Register
 //UCSRnA = USART Control and Status Register A
-
-
 
 //0=input
 //1=output
@@ -48,12 +46,12 @@ void writePin(unsigned pin, uint8_t value)
 
 	}
 
-}
 
+}
 
 void initSerial(uint8_t txRxReg, uint32_t baud)
 {
-	unsigned long UBRRnCalc  = ((F_CPU / 16 / baud) -1); //UBRRn = USART Baud Rate Register
+	unsigned long UBRRnCalc = ((F_CPU / 16 / baud) - 1); //UBRRn = USART Baud Rate Register
 
 	if (txRxReg == 0)
 	{
@@ -95,8 +93,8 @@ unsigned char USART_Receive(void)
 	/* Wait for data to be received */
 	//int timeout = 9999;
 //	while (!(UCSR0A & (1 << RXC0)) );//&& timeout != 0)
-		//timeout--;
-	if(!(UCSR0A & (1 << RXC0)) )
+	//timeout--;
+	if (!(UCSR0A & (1 << RXC0)))
 		return '\0';
 
 	/* Get and return received data from buffer */
@@ -104,7 +102,7 @@ unsigned char USART_Receive(void)
 }
 
 #define BUFFER_SIZE 1024
-unsigned char bufferIn[BUFFER_SIZE+1];
+unsigned char bufferIn[BUFFER_SIZE + 1];
 
 unsigned bip = 0;
 unsigned bop = 0;
@@ -112,7 +110,7 @@ unsigned bop = 0;
 int main(void)
 {
 	delay(50)
-	bufferIn[BUFFER_SIZE]='\0';
+	bufferIn[BUFFER_SIZE] = '\0';
 
 	initSerial(0, 57600);
 	setPinDirection(13, 1);
@@ -122,6 +120,24 @@ int main(void)
 	unsigned bop = 0;
 	sendStr("howdy partner \r\n");
 
+	char str[BUFFER_SIZE];
+	sprintf(str, "address of PORTB is %d\r\n", &PORTB);
+	sendStr(str);
+
+
+	int * addr = &PORTB;
+	int bit = 7;
+
+	while (1)
+	{
+		*addr |= (unsigned char) 0xA0;
+		delay(500);
+		*addr &= (unsigned char) 0x1F;
+		delay(500);
+	};
+
+//	PORTB |= (unsigned char) 0xA0; /* set pin 13 high */
+//	PORTB &= (unsigned char) 0x1F; /* set pin 13 low*/
 
 	while (1)
 	{
@@ -129,21 +145,20 @@ int main(void)
 		{
 			unsigned char c = USART_Receive();
 
-			bufferIn[bip++]=c;
+			bufferIn[bip++] = c;
 			if (c == '\r' || c == '\n' || bip == BUFFER_SIZE)
 			{
 				bufferIn[bip] = '\0';
 				sendStr("\r\n");
 				sendStr(bufferIn);
 				sendStr("\r\n");
-				bip=0;
+				bip = 0;
 
 			}
 			writePin(13, 1);
 		}
 
 		writePin(13, 0);
-
 	}
 
 	return 0;
