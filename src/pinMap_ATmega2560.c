@@ -1,4 +1,4 @@
-#include "ATmega2560_PinMap.h"
+#include "../includes/ATmega2560_ArduinoPinMap.h"
 
 int * digitalPortAddresses[] = {&PE0, &PE1, &PE4, &PE5, &PG5, &PE3, &PH3, &PH4, &PH5, &PH6, &PB4, &PB5, &PB6, &PB7, &PJ1, &PJ0, &PH1, &PH0, &PD3, &PD2, &PD1, &PD0, &PA0, &PA1, &PA2, &PA3, &PA4, &PA5, &PA6, &PA7, &PC7, &PC6, &PC5, &PC4, &PC3, &PC2, &PC1, &PC0, &PD7, &PG2, &PG1, &PG0, &PL7, &PL6, &PL5, &PL4, &PL3, &PL2, &PL1, &PL0, &PB3, &PB2, &PB1, &PB0};
 

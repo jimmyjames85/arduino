@@ -1,0 +1,292 @@
+/*
+ * pinMap_ATmega2560.h
+ *
+ *  Created on: Feb 23, 2015
+ *      Author: jim
+ */
+#ifndef INCLUDES_ATMEGA2560_ARDUINOPINMAP_H_
+#define INCLUDES_ATMEGA2560_ARDUINOPINMAP_H_
+#define __AVR_ATmega2560__ 1
+
+
+#define DP00MASK PE0
+#define DP00PORT PORTE
+#define DP00DDR  DDRE
+
+#define DP01MASK PE1
+#define DP01PORT PORTE
+#define DP01DDR  DDRE
+
+#define DP02MASK PE4
+#define DP02PORT PORTE
+#define DP02DDR  DDRE
+
+#define DP03MASK PE5
+#define DP03PORT PORTE
+#define DP03DDR  DDRE
+
+#define DP04MASK PG5
+#define DP04PORT PORTG
+#define DP04DDR  DDRG
+
+#define DP05MASK PE3
+#define DP05PORT PORTE
+#define DP05DDR  DDRE
+
+#define DP06MASK PH3
+#define DP06PORT PORTH
+#define DP06DDR  DDRH
+
+#define DP07MASK PH4
+#define DP07PORT PORTH
+#define DP07DDR  DDRH
+
+#define DP08MASK PH5
+#define DP08PORT PORTH
+#define DP08DDR  DDRH
+
+#define DP09MASK PH6
+#define DP09PORT PORTH
+#define DP09DDR  DDRH
+
+#define DP10MASK PB4
+#define DP10PORT PORTB
+#define DP10DDR  DDRB
+
+#define DP11MASK PB5
+#define DP11PORT PORTB
+#define DP11DDR  DDRB
+
+#define DP12MASK PB6
+#define DP12PORT PORTB
+#define DP12DDR  DDRB
+
+#define DP13MASK PB7
+#define DP13PORT PORTB
+#define DP13DDR  DDRB
+
+#define DP14MASK PJ1
+#define DP14PORT PORTJ
+#define DP14DDR  DDRJ
+
+#define DP15MASK PJ0
+#define DP15PORT PORTJ
+#define DP15DDR  DDRJ
+
+#define DP16MASK PH1
+#define DP16PORT PORTH
+#define DP16DDR  DDRH
+
+#define DP17MASK PH0
+#define DP17PORT PORTH
+#define DP17DDR  DDRH
+
+#define DP18MASK PD3
+#define DP18PORT PORTD
+#define DP18DDR  DDRD
+
+#define DP19MASK PD2
+#define DP19PORT PORTD
+#define DP19DDR  DDRD
+
+#define DP20MASK PD1
+#define DP20PORT PORTD
+#define DP20DDR  DDRD
+
+#define DP21MASK PD0
+#define DP21PORT PORTD
+#define DP21DDR  DDRD
+
+#define DP22MASK PA0
+#define DP22PORT PORTA
+#define DP22DDR  DDRA
+
+#define DP23MASK PA1
+#define DP23PORT PORTA
+#define DP23DDR  DDRA
+
+#define DP24MASK PA2
+#define DP24PORT PORTA
+#define DP24DDR  DDRA
+
+#define DP25MASK PA3
+#define DP25PORT PORTA
+#define DP25DDR  DDRA
+
+#define DP26MASK PA4
+#define DP26PORT PORTA
+#define DP26DDR  DDRA
+
+#define DP27MASK PA5
+#define DP27PORT PORTA
+#define DP27DDR  DDRA
+
+#define DP28MASK PA6
+#define DP28PORT PORTA
+#define DP28DDR  DDRA
+
+#define DP29MASK PA7
+#define DP29PORT PORTA
+#define DP29DDR  DDRA
+
+#define DP30MASK PC7
+#define DP30PORT PORTC
+#define DP30DDR  DDRC
+
+#define DP31MASK PC6
+#define DP31PORT PORTC
+#define DP31DDR  DDRC
+
+#define DP32MASK PC5
+#define DP32PORT PORTC
+#define DP32DDR  DDRC
+
+#define DP33MASK PC4
+#define DP33PORT PORTC
+#define DP33DDR  DDRC
+
+#define DP34MASK PC3
+#define DP34PORT PORTC
+#define DP34DDR  DDRC
+
+#define DP35MASK PC2
+#define DP35PORT PORTC
+#define DP35DDR  DDRC
+
+#define DP36MASK PC1
+#define DP36PORT PORTC
+#define DP36DDR  DDRC
+
+#define DP37MASK PC0
+#define DP37PORT PORTC
+#define DP37DDR  DDRC
+
+#define DP38MASK PD7
+#define DP38PORT PORTD
+#define DP38DDR  DDRD
+
+#define DP39MASK PG2
+#define DP39PORT PORTG
+#define DP39DDR  DDRG
+
+#define DP40MASK PG1
+#define DP40PORT PORTG
+#define DP40DDR  DDRG
+
+#define DP41MASK PG0
+#define DP41PORT PORTG
+#define DP41DDR  DDRG
+
+#define DP42MASK PL7
+#define DP42PORT PORTL
+#define DP42DDR  DDRL
+
+#define DP43MASK PL6
+#define DP43PORT PORTL
+#define DP43DDR  DDRL
+
+#define DP44MASK PL5
+#define DP44PORT PORTL
+#define DP44DDR  DDRL
+
+#define DP45MASK PL4
+#define DP45PORT PORTL
+#define DP45DDR  DDRL
+
+#define DP46MASK PL3
+#define DP46PORT PORTL
+#define DP46DDR  DDRL
+
+#define DP47MASK PL2
+#define DP47PORT PORTL
+#define DP47DDR  DDRL
+
+#define DP48MASK PL1
+#define DP48PORT PORTL
+#define DP48DDR  DDRL
+
+#define DP49MASK PL0
+#define DP49PORT PORTL
+#define DP49DDR  DDRL
+
+#define DP50MASK PB3
+#define DP50PORT PORTB
+#define DP50DDR  DDRB
+
+#define DP51MASK PB2
+#define DP51PORT PORTB
+#define DP51DDR  DDRB
+
+#define DP52MASK PB1
+#define DP52PORT PORTB
+#define DP52DDR  DDRB
+
+#define DP53MASK PB0
+#define DP53PORT PORTB
+#define DP53DDR  DDRB
+
+#define AP00MASK PF0
+#define AP00PORT PORTF
+#define AP00DDR  DDRF
+
+#define AP01MASK PF1
+#define AP01PORT PORTF
+#define AP01DDR  DDRF
+
+#define AP02MASK PF2
+#define AP02PORT PORTF
+#define AP02DDR  DDRF
+
+#define AP03MASK PF3
+#define AP03PORT PORTF
+#define AP03DDR  DDRF
+
+#define AP04MASK PF4
+#define AP04PORT PORTF
+#define AP04DDR  DDRF
+
+#define AP05MASK PF5
+#define AP05PORT PORTF
+#define AP05DDR  DDRF
+
+#define AP06MASK PF6
+#define AP06PORT PORTF
+#define AP06DDR  DDRF
+
+#define AP07MASK PF7
+#define AP07PORT PORTF
+#define AP07DDR  DDRF
+
+#define AP08MASK PK0
+#define AP08PORT PORTK
+#define AP08DDR  DDRK
+
+#define AP09MASK PK1
+#define AP09PORT PORTK
+#define AP09DDR  DDRK
+
+#define AP10MASK PK2
+#define AP10PORT PORTK
+#define AP10DDR  DDRK
+
+#define AP11MASK PK3
+#define AP11PORT PORTK
+#define AP11DDR  DDRK
+
+#define AP12MASK PK4
+#define AP12PORT PORTK
+#define AP12DDR  DDRK
+
+#define AP13MASK PK5
+#define AP13PORT PORTK
+#define AP13DDR  DDRK
+
+#define AP14MASK PK6
+#define AP14PORT PORTK
+#define AP14DDR  DDRK
+
+#define AP15MASK PK7
+#define AP15PORT PORTK
+#define AP15DDR  DDRK
+
+#endif /* INCLUDES_ATMEGA2560_ARDUINOPINMAP_H_ */

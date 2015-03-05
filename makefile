@@ -13,12 +13,16 @@ CC=avr-gcc
 OBJCP=avr-objcopy
 CFLAGS=-mmcu=$(MCU) -Iincludes
 AVRDUDE_RUNNING=`ps -e | grep "eclipse" > /dev/null`
-UPLOAD=avrdude -F -v -p m2560 -c stk500 -P /dev/ttyACM0 -U flash:w:hex/blink.hex; putty -load arduino
+UPLOAD=avrdude -F -v -p m2560 -c stk500 -P /dev/ttyACM0 -U flash:w:hex/blink.hex
+UPLOADPUTTY=avrdude -F -v -p m2560 -c stk500 -P /dev/ttyACM0 -U flash:w:hex/blink.hex; putty -load arduino
 
 all: blink.hex
 
+uploadPutty: upload
+	if  ps -e | grep "avrdude" > /dev/null ; then echo "ABORT: avrdude is running" ;  exit ; else if ps -e | grep "putty" > /dev/null ; then echo "ABORT: putty is running" ;  exit ; else $(UPLOADPUTTY)); fi ; fi
+	
 upload:
-	if  ps -e | grep "avrdude" > /dev/null ; then echo "ABORT: avrdude is running" ;  exit ; else if ps -e | grep "putty" > /dev/null ; then echo "ABORT: putty is running" ;  exit ; else $(UPLOAD); fi ; fi
+	if  ps -e | grep "avrdude" > /dev/null ; then echo "ABORT: avrdude is running" ;  exit ; else $(UPLOAD); fi 
 	
 blink.hex: folders blink.a
 	$(OBJCP) -O ihex -R .eeprom bin/blink.a hex/blink.hex

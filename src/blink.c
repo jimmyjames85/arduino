@@ -11,11 +11,20 @@
  */
 /* avrdude ==>> http://www.nongnu.org/avrdude/user-manual/avrdude_4.html */
 
-#include <avr/io.h>
+
+
+
 #include <util/delay.h>
 #include <string.h>
 #include <stdio.h>
+
 #include "sugar.h"
+#include <avr/io.h>
+#include <avr/iom2560.h>
+#include <avr/iomxx0_1.h>
+
+#include "ATmega2560_ArduinoPinMap.h"
+
 
 //#define F_CPU 16000000
 
@@ -55,6 +64,7 @@ void initSerial(uint8_t txRxReg, uint32_t baud)
 
 	if (txRxReg == 0)
 	{
+
 		UBRR0H = (unsigned char) UBRRnCalc >> 8;
 		UBRR0L = (unsigned char) UBRRnCalc;
 
@@ -85,7 +95,7 @@ void sendStr(char * str)
 	{
 		sendChar(str[i]);
 	}
-	delay(20);
+	_delay_ms(20);
 }
 
 unsigned char USART_Receive(void)
@@ -109,7 +119,8 @@ unsigned bop = 0;
 
 int main(void)
 {
-	delay(50)
+	/*
+	_delay_ms(50);
 	bufferIn[BUFFER_SIZE] = '\0';
 
 	initSerial(0, 57600);
@@ -123,17 +134,22 @@ int main(void)
 	char str[BUFFER_SIZE];
 	sprintf(str, "address of PORTB is %d\r\n", &PORTB);
 	sendStr(str);
+*/
 
 
-	int * addr = &PORTB;
-	int bit = 7;
+	//setup output on Dpins 13
+	DP13DDR |= (1 << DP13MASK);
+	DP08DDR |= (1 << DP08MASK);
+
 
 	while (1)
 	{
-		*addr |= (unsigned char) 0xA0;
-		delay(500);
-		*addr &= (unsigned char) 0x1F;
-		delay(500);
+		DP13PORT |= (1 << DP13MASK);
+		DP08PORT |= (1 << DP08MASK);
+		_delay_ms(3000);
+		DP13PORT &= ~(1 << DP13MASK);
+		DP08PORT &= ~(1 << DP08MASK);
+		_delay_ms(1500);
 	};
 
 //	PORTB |= (unsigned char) 0xA0; /* set pin 13 high */
