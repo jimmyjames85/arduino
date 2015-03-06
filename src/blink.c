@@ -10,10 +10,7 @@
  avrdude -F -V -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:led.hex
  */
 /* avrdude ==>> http://www.nongnu.org/avrdude/user-manual/avrdude_4.html */
-
-
-
-
+#include <compat/twi.h>
 #include <util/delay.h>
 #include <string.h>
 #include <stdio.h>
@@ -24,40 +21,37 @@
 #include <avr/iomxx0_1.h>
 
 #include "ATmega2560_ArduinoPinMap.h"
-
-
+/*
+ #define SSD1306_LCDWIDTH      128
+ #define SSD1306_LCDHEIGHT      64
+ #define SSD1306_SETCONTRAST   0x81
+ #define SSD1306_DISPLAYALLON_RESUME 0xA4
+ #define SSD1306_DISPLAYALLON 0xA5
+ #define SSD1306_NORMALDISPLAY 0xA6
+ #define SSD1306_INVERTDISPLAY 0xA7
+ #define SSD1306_DISPLAYOFF 0xAE
+ #define SSD1306_DISPLAYON 0xAF
+ #define SSD1306_SETDISPLAYOFFSET 0xD3
+ #define SSD1306_SETCOMPINS 0xDA
+ #define SSD1306_SETVCOMDETECT 0xDB
+ #define SSD1306_SETDISPLAYCLOCKDIV 0xD5
+ #define SSD1306_SETPRECHARGE 0xD9
+ #define SSD1306_SETMULTIPLEX 0xA8
+ #define SSD1306_SETLOWCOLUMN 0x00
+ #define SSD1306_SETHIGHCOLUMN 0x10
+ #define SSD1306_SETSTARTLINE 0x40
+ #define SSD1306_MEMORYMODE 0x20
+ #define SSD1306_COLUMNADDR 0x21
+ #define SSD1306_PAGEADDR   0x22
+ #define SSD1306_COMSCANINC 0xC0
+ #define SSD1306_COMSCANDEC 0xC8
+ #define SSD1306_SEGREMAP 0xA0
+ #define SSD1306_CHARGEPUMP 0x8D
+ #define SSD1306_EXTERNALVCC 0x1
+ #define SSD1306_SWITCHCAPVCC 0x2 */
 //#define F_CPU 16000000
-
 //UBRRn  = USART Baud Rate Register
 //UCSRnA = USART Control and Status Register A
-
-//0=input
-//1=output
-void setPinDirection(unsigned pin, uint8_t direction)
-{
-	if (pin == 13)
-	{
-		if (direction)
-			DDRB |= (unsigned char) (0xA0); /*set pin 13 to output*/
-		else
-			DDRB &= (0X1F);/*set pin 13 to input*/
-	}
-}
-
-void writePin(unsigned pin, uint8_t value)
-{
-	if (pin == 13)
-	{
-		if (value)
-			PORTB |= (unsigned char) 0xA0; /* set pin 13 high */
-		else
-			PORTB &= (unsigned char) 0x1F; /* set pin 13 high */
-
-	}
-
-
-}
-
 void initSerial(uint8_t txRxReg, uint32_t baud)
 {
 	unsigned long UBRRnCalc = ((F_CPU / 16 / baud) - 1); //UBRRn = USART Baud Rate Register
@@ -117,65 +111,199 @@ unsigned char bufferIn[BUFFER_SIZE + 1];
 unsigned bip = 0;
 unsigned bop = 0;
 
+void setPinDirection(volatile uint8_t * ddrAddr, int pinMask, int direction)
+{
+	//0=input
+	//1=output
+
+	if (direction)	//set output
+		*ddrAddr |= (1 << pinMask);
+	else
+		*ddrAddr &= ~(1 << pinMask);
+}
+
+void writePin(volatile uint8_t * portAddr, int pinMask, int value)
+{
+	if (value)	//high
+		*portAddr |= (1 << pinMask);
+	else
+		*portAddr &= ~(1 << pinMask);
+}
+void error(char * msg)
+{
+	sendStr(msg);
+	while (1)
+		;
+
+}
+
+inline unsigned char getI2CInt()
+{
+	return TWCR & (1 << TWINT);
+}
+inline void assertI2CInt()
+{
+	TWCR |= (1 << TWINT);
+}
+char str[BUFFER_SIZE];
+
+void displayI2Cstatus()
+{
+	return;
+	sprintf(str, " TWBR: %02x\r\n", TWBR);
+	sendStr(str);
+	sprintf(str, " TWSR: %02x\r\n", TWSR);
+	sendStr(str);
+	sprintf(str, " TWEN: %02x\r\n", (TWCR & (1 << TWEN)));
+	sprintf(str, "TWINT: %02x\r\n-------\r\n", getI2CInt());
+	sendStr(str);
+
+}
+
+void sendI2C(unsigned char i2cAddress, unsigned char * byteArr, int arrSize)
+{
+	//STEP #1
+	//      (enable)    (START )     (Interupt)
+	TWCR |= (1 << TWEN) | (1 << TWSTA) | (1 << TWINT);
+
+	//Step #2
+	while (!getI2CInt())
+		;
+
+	//Step #3
+	//TODO CHECK STATUS (TWSR & 0xF8)=?
+	//Load i2c i2cAddress and R/W bit  (SLA+R/W)
+	TWDR = (i2cAddress << 1);	//Write
+	//Enable and SEND!!!
+	TWCR |= (1 << TWINT) | (1 << TWEN);
+
+	//Step #4 wait...
+	while (!getI2CInt())
+		;
+
+	//Step #5 Load Data
+	//TODO CHECK STATUS (TWSR & 0xF8)=?
+	int i = 0;
+	for (i = 0; i < arrSize; i++)
+	{
+		TWDR = byteArr[i];
+		TWCR = (1 << TWINT) | (1 << TWEN);
+		//Step #6 wait for ACK
+		while (!getI2CInt())
+			;
+	}
+
+	//Transmit Stop
+	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
+}
+
 int main(void)
 {
-	/*
-	_delay_ms(50);
-	bufferIn[BUFFER_SIZE] = '\0';
-
 	initSerial(0, 57600);
-	setPinDirection(13, 1);
-	writePin(13, 0);
 
+	TWBR = 0xFF;		//make it fast i guess
+	TWSR &= (0xFC);		//clear prescaler bits
+
+	displayI2Cstatus();
+
+	//not sure about this
+	//TWDR = 0xC0;	//0xC0 := databytes and commands requires
+	//TWDR = 0x40;	//0x40 := stream of databytes
+
+	int i = 0;
+	int j = 0;
+	int y = 0;
+	for (j = 0; j < 8; j++)
+		for (i = 0; i < 127; i++)
+		{
+			unsigned char bar[] =
+			{ 0x40, (1 << (y++ % 8)) };
+			sendI2C(0x3C, bar, 2);
+		}
+	displayI2Cstatus();
+
+	setPinDirection(&DP12DDR, DP12MASK, 1);
+
+	bufferIn[BUFFER_SIZE] = '\0';
 	unsigned bip = 0;
-	unsigned bop = 0;
-	sendStr("howdy partner \r\n");
-
-	char str[BUFFER_SIZE];
-	sprintf(str, "address of PORTB is %d\r\n", &PORTB);
-	sendStr(str);
-*/
-
-
-	//setup output on Dpins 13
-	DP13DDR |= (1 << DP13MASK);
-	DP08DDR |= (1 << DP08MASK);
-
-
-	while (1)
-	{
-		DP13PORT |= (1 << DP13MASK);
-		DP08PORT |= (1 << DP08MASK);
-		_delay_ms(3000);
-		DP13PORT &= ~(1 << DP13MASK);
-		DP08PORT &= ~(1 << DP08MASK);
-		_delay_ms(1500);
-	};
-
-//	PORTB |= (unsigned char) 0xA0; /* set pin 13 high */
-//	PORTB &= (unsigned char) 0x1F; /* set pin 13 low*/
-
 	while (1)
 	{
 		while (UCSR0A & (1 << RXC0))
 		{
-			unsigned char c = USART_Receive();
+			unsigned char ch = USART_Receive();
 
-			bufferIn[bip++] = c;
-			if (c == '\r' || c == '\n' || bip == BUFFER_SIZE)
+			bufferIn[bip++] = ch;
+			if (ch == '\r' || ch == '\n' || bip == BUFFER_SIZE)
 			{
 				bufferIn[bip] = '\0';
 				sendStr("\r\n");
 				sendStr(bufferIn);
 				sendStr("\r\n");
+
+				unsigned char command[BUFFER_SIZE];
+				int cmdc = 0;
+				int ci = 0;
+				//unsigned c=0;
+				while (ci < bip)
+				{
+					int cmd;
+
+					char chr = bufferIn[ci++];
+					if (chr >= '0' && chr <= '9')
+						cmd = ((chr - '0') << 4);
+					else if (chr >= 'a' && chr <= 'f')
+						cmd = ((10 + chr - 'a') << 4);
+					else if (chr >= 'A' && chr <= 'F')
+						cmd = ((10 + chr - 'A') << 4);
+					else
+						continue;
+
+					//sendChar(ch);
+					chr = bufferIn[ci++];
+
+					if (chr >= '0' && chr <= '9')
+						cmd |= ((chr - '0'));
+					else if (chr >= 'a' && chr <= 'f')
+						cmd |= ((10 + chr - 'a'));
+					else if (chr >= 'A' && chr <= 'F')
+						cmd |= ((10 + chr - 'A'));
+					else
+						continue;
+
+					//sendChar(ch);
+
+					sprintf(str, "  cmd=%02x \r\n", cmd);
+					sendStr(str);
+					command[cmdc++] = cmd;
+				}
+
 				bip = 0;
 
-			}
-			writePin(13, 1);
-		}
 
-		writePin(13, 0);
+
+				for (ci = 0; ci < cmdc; ci++)
+				{
+					sprintf(str, "%02x ", command[ci]);
+					sendStr(str);
+
+				}
+				sendStr("\r\n");
+				sendI2C(0x3C,command,cmdc);
+
+				bip = 0;
+			}
+		}
 	}
 
+	while (1)
+	{
+		DP13PORT |= (1 << DP13MASK);
+		writePin(&DP12PORT, DP12MASK, 1);
+		_delay_ms(500);
+		DP13PORT &= ~(1 << DP13MASK);
+		writePin(&DP12PORT, DP12MASK, 0);
+		_delay_ms(500);
+
+	};
 	return 0;
 }
