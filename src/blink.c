@@ -197,113 +197,214 @@ void sendI2C(unsigned char i2cAddress, unsigned char * byteArr, int arrSize)
 	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
 }
 
-int main(void)
+#define COMMAND_BUFFER_SIZE 64
+#define BUFFER_SIZE 1024
+
+static uint8_t cmdBuffer[COMMAND_BUFFER_SIZE + BUFFER_SIZE] =
+{ 0 };
+static uint8_t * buffer = &cmdBuffer[COMMAND_BUFFER_SIZE];
+
+void setContrast(uint8_t contrast)
 {
-	initSerial(0, 57600);
+	cmdBuffer[0] = 0x00;	//continous commands only
+	cmdBuffer[1] = 0x81;	//contrast cmd
+	cmdBuffer[2] = contrast;	//value
+	sendI2C(0x3C, cmdBuffer, 3);
+}
 
-	TWBR = 0xFF;		//make it fast i guess
-	TWSR &= (0xFC);		//clear prescaler bits
+void updateDisplay()
+{
 
-	displayI2Cstatus();
+	memset(cmdBuffer, 0xe3, COMMAND_BUFFER_SIZE);	//fill with no ops
 
-	//not sure about this
-	//TWDR = 0xC0;	//0xC0 := databytes and commands requires
-	//TWDR = 0x40;	//0x40 := stream of databytes
+	cmdBuffer[0] = 0x00;	//continous command
+	cmdBuffer[1] = 0x20;	//set mode
+	cmdBuffer[2] = 0x00;	//to horizontal
 
-	int i = 0;
-	int j = 0;
-	int y = 0;
-	for (j = 0; j < 8; j++)
-		for (i = 0; i < 127; i++)
-		{
-			unsigned char bar[] =
-			{ 0x40, (1 << (y++ % 8)) };
-			sendI2C(0x3C, bar, 2);
-		}
-	displayI2Cstatus();
+	cmdBuffer[3] = 0x21;	//set column address
+	cmdBuffer[4] = 0x00;	//to use the entire screen
+	cmdBuffer[5] = 0xFF;	//to use the entire screen
 
-	setPinDirection(&DP12DDR, DP12MASK, 1);
+	cmdBuffer[6] = 0x22;	//set page address
+	cmdBuffer[7] = 0x00;	//to use the entire screen
+	cmdBuffer[8] = 0xFF;	//to use the entire screen
 
-	bufferIn[BUFFER_SIZE] = '\0';
-	unsigned bip = 0;
-	while (1)
+	sendI2C(0x3C, &cmdBuffer[0], 16);
+
+	cmdBuffer[15] = 0x40;	//continous ram data
+	sendI2C(0x3C, &cmdBuffer[15], 1025);
+
+}
+
+void clearScreen()
+{
+	memset(buffer, 0, BUFFER_SIZE);	//clear buffer
+}
+
+void setPixel(int x, int y)
+{
+	int width = 127;
+	int height = 63;
+
+	if (x < 0 || y < 0 || x > width || y > height )
+		return;
+
+
+}
+
+void drawLine(int x1, int y1, int x2, int y2)
+{
+	int width = 127;
+	int height = 63;
+
+	if (x1 < 0 || y1 < 0 || x2 < 0 || y2 < 0 || x1 > width || y1 > height || x2 > width || y2 > height)
+		return;
+
+	if(x1>x2)
 	{
-		while (UCSR0A & (1 << RXC0))
-		{
-			unsigned char ch = USART_Receive();
-
-			bufferIn[bip++] = ch;
-			if (ch == '\r' || ch == '\n' || bip == BUFFER_SIZE)
-			{
-				bufferIn[bip] = '\0';
-				sendStr("\r\n");
-				sendStr(bufferIn);
-				sendStr("\r\n");
-
-				unsigned char command[BUFFER_SIZE];
-				int cmdc = 0;
-				int ci = 0;
-				//unsigned c=0;
-				while (ci < bip)
-				{
-					int cmd;
-
-					char chr = bufferIn[ci++];
-					if (chr >= '0' && chr <= '9')
-						cmd = ((chr - '0') << 4);
-					else if (chr >= 'a' && chr <= 'f')
-						cmd = ((10 + chr - 'a') << 4);
-					else if (chr >= 'A' && chr <= 'F')
-						cmd = ((10 + chr - 'A') << 4);
-					else
-						continue;
-
-					//sendChar(ch);
-					chr = bufferIn[ci++];
-
-					if (chr >= '0' && chr <= '9')
-						cmd |= ((chr - '0'));
-					else if (chr >= 'a' && chr <= 'f')
-						cmd |= ((10 + chr - 'a'));
-					else if (chr >= 'A' && chr <= 'F')
-						cmd |= ((10 + chr - 'A'));
-					else
-						continue;
-
-					//sendChar(ch);
-
-					sprintf(str, "  cmd=%02x \r\n", cmd);
-					sendStr(str);
-					command[cmdc++] = cmd;
-				}
-
-				bip = 0;
-
-
-
-				for (ci = 0; ci < cmdc; ci++)
-				{
-					sprintf(str, "%02x ", command[ci]);
-					sendStr(str);
-
-				}
-				sendStr("\r\n");
-				sendI2C(0x3C,command,cmdc);
-
-				bip = 0;
-			}
-		}
+		int tempX=x1;
+		int tempY=y1;
+		x1=x2;
+		y1=y2;
+		x2=tempX;
+		y2=tempY;
 	}
 
-	while (1)
-	{
-		DP13PORT |= (1 << DP13MASK);
-		writePin(&DP12PORT, DP12MASK, 1);
-		_delay_ms(500);
-		DP13PORT &= ~(1 << DP13MASK);
-		writePin(&DP12PORT, DP12MASK, 0);
-		_delay_ms(500);
 
-	};
-	return 0;
+	double rise = y2 - y1;
+	double run = x2 - x1;
+
+	double nextX = x1;
+	double nexyY = y1;
+
+	while(nextX<=x2)
+	{
+
+	}
+}
+
+
+
+int main(void)
+{
+
+initSerial(0, 57600);
+
+TWBR = 0x00;		//make it fast i guess
+TWSR &= (0xFC);		//clear prescaler bits
+
+_delay_ms(500);
+
+clearScreen();
+updateDisplay();
+
+//not sure about this
+//TWDR = 0xC0;	//0xC0 := databytes and commands requires
+//TWDR = 0x40;	//0x40 := stream of databytes
+//setContrast(0xFF);
+int i = 0;
+int j = 0;
+int y = 0;
+for (j = 0; j < 8; j++)
+	for (i = 0; i < 127; i++)
+	{
+		unsigned char bar[] =
+		{ 0x40, (1 << (y++ % 8)) };
+		sendI2C(0x3C, bar, 2);
+	}
+
+setContrast(0x00);
+_delay_ms(500);
+setContrast(0xFF);
+_delay_ms(500);
+setContrast(0x00);
+_delay_ms(500);
+setContrast(0xFF);
+_delay_ms(500);
+
+clearScreen();
+updateDisplay();
+
+setPinDirection(&DP12DDR, DP12MASK, 1);
+
+bufferIn[BUFFER_SIZE] = '\0';
+unsigned bip = 0;
+while (1)
+{
+	while (UCSR0A & (1 << RXC0))
+	{
+		unsigned char ch = USART_Receive();
+
+		bufferIn[bip++] = ch;
+		if (ch == '\r' || ch == '\n' || bip == BUFFER_SIZE)
+		{
+			bufferIn[bip] = '\0';
+			sendStr("\r\n");
+//				sendStr(bufferIn);
+			//			sendStr("\r\n");
+
+			unsigned char command[BUFFER_SIZE];
+			int cmdc = 0;
+			int ci = 0;
+			//unsigned c=0;
+			while (ci < bip)
+			{
+				int cmd;
+
+				char chr = bufferIn[ci++];
+				if (chr >= '0' && chr <= '9')
+					cmd = ((chr - '0') << 4);
+				else if (chr >= 'a' && chr <= 'f')
+					cmd = ((10 + chr - 'a') << 4);
+				else if (chr >= 'A' && chr <= 'F')
+					cmd = ((10 + chr - 'A') << 4);
+				else
+					continue;
+
+				//sendChar(ch);
+				chr = bufferIn[ci++];
+
+				if (chr >= '0' && chr <= '9')
+					cmd |= ((chr - '0'));
+				else if (chr >= 'a' && chr <= 'f')
+					cmd |= ((10 + chr - 'a'));
+				else if (chr >= 'A' && chr <= 'F')
+					cmd |= ((10 + chr - 'A'));
+				else
+					continue;
+
+				//sendChar(ch);
+
+				//sprintf(str, "  cmd=%02x \r\n", cmd);
+				//sendStr(str);
+				command[cmdc++] = cmd;
+			}
+
+			bip = 0;
+
+			for (ci = 0; ci < cmdc; ci++)
+			{
+				sprintf(str, "%02x ", command[ci]);
+				sendStr(str);
+
+			}
+			sendStr("\r\n");
+			sendI2C(0x3C, command, cmdc);
+
+			bip = 0;
+		}
+	}
+}
+
+while (1)
+{
+	DP13PORT |= (1 << DP13MASK);
+	writePin(&DP12PORT, DP12MASK, 1);
+	_delay_ms(500);
+	DP13PORT &= ~(1 << DP13MASK);
+	writePin(&DP12PORT, DP12MASK, 0);
+	_delay_ms(500);
+
+};
+return 0;
 }
