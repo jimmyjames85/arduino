@@ -283,12 +283,18 @@ void drawLine(int x1, int y1, int x2, int y2)
 	}
 }
 
+void initScreen()
+{
+
+}
+
 
 
 int main(void)
 {
 
 initSerial(0, 57600);
+initScreen();
 
 TWBR = 0x00;		//make it fast i guess
 TWSR &= (0xFC);		//clear prescaler bits
