@@ -16,6 +16,8 @@
 #include <stdio.h>
 
 #include "sugar.h"
+#include "twi.h"
+#include "ssd1306.h"
 #include <avr/io.h>
 #include <avr/iom2560.h>
 #include <avr/iomxx0_1.h>
@@ -197,128 +199,139 @@ void sendI2C(unsigned char i2cAddress, unsigned char * byteArr, int arrSize)
 	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
 }
 
-#define COMMAND_BUFFER_SIZE 64
-#define BUFFER_SIZE 1024
-
-static uint8_t cmdBuffer[COMMAND_BUFFER_SIZE + BUFFER_SIZE] =
-{ 0 };
-static uint8_t * buffer = &cmdBuffer[COMMAND_BUFFER_SIZE];
-
-void setContrast(uint8_t contrast)
+void lineTest()
 {
-	cmdBuffer[0] = 0x00;	//continous commands only
-	cmdBuffer[1] = 0x81;	//contrast cmd
-	cmdBuffer[2] = contrast;	//value
-	sendI2C(0x3C, cmdBuffer, 3);
-}
+	clearScreen();
+	updateDisplay();
 
-void updateDisplay()
-{
+	int x1, y1, x2, y2;
+	x1 = 0;
+	y1 = 0;
+	y2 = SSD_HEIGHT - 1;
 
-	memset(cmdBuffer, 0xe3, COMMAND_BUFFER_SIZE);	//fill with no ops
-
-	cmdBuffer[0] = 0x00;	//continous command
-	cmdBuffer[1] = 0x20;	//set mode
-	cmdBuffer[2] = 0x00;	//to horizontal
-
-	cmdBuffer[3] = 0x21;	//set column address
-	cmdBuffer[4] = 0x00;	//to use the entire screen
-	cmdBuffer[5] = 0xFF;	//to use the entire screen
-
-	cmdBuffer[6] = 0x22;	//set page address
-	cmdBuffer[7] = 0x00;	//to use the entire screen
-	cmdBuffer[8] = 0xFF;	//to use the entire screen
-
-	sendI2C(0x3C, &cmdBuffer[0], 16);
-
-	cmdBuffer[15] = 0x40;	//continous ram data
-	sendI2C(0x3C, &cmdBuffer[15], 1025);
-
-}
-
-void clearScreen()
-{
-	memset(buffer, 0, BUFFER_SIZE);	//clear buffer
-}
-
-void setPixel(int x, int y)
-{
-	int width = 127;
-	int height = 63;
-
-	if (x < 0 || y < 0 || x > width || y > height)
-		return;
-
-}
-
-void drawLine(int x1, int y1, int x2, int y2)
-{
-	int width = 127;
-	int height = 63;
-
-	if (x1 < 0 || y1 < 0 || x2 < 0 || y2 < 0 || x1 > width || y1 > height || x2 > width || y2 > height)
-		return;
-
-	if (x1 > x2)
+	for (x2 = 0; x2 < SSD_WIDTH; x2 += 4)
 	{
-		int tempX = x1;
-		int tempY = y1;
-		x1 = x2;
-		y1 = y2;
-		x2 = tempX;
-		y2 = tempY;
+		drawLine(x1, y1, x2, y2, 1);
+		updateDisplay();
 	}
 
-	double rise = y2 - y1;
-	double run = x2 - x1;
-
-	double nextX = x1;
-	double nexyY = y1;
-
-	while (nextX <= x2)
+	x2 = SSD_WIDTH - 1;
+	for (y2 = SSD_HEIGHT - 1; y2 > 0; y2 -= 4)
 	{
-
+		drawLine(x1, y1, x2, y2, 1);
+		updateDisplay();
 	}
-}
 
-void initScreen()
-{
-	unsigned char arr[] =
-	{ 0x00, 0xAF };
-	sendI2C(0x3C, arr, 2);
+	clearScreen();
+	updateDisplay();
+
+	x1 = SSD_WIDTH - 1;
+	y1 = 0;
+
+	x2 = 0;
+	y2 = 0;
+
+	for (y2 = 0; y2 < SSD_HEIGHT; y2 += 4)
+	{
+		drawLine(x1, y1, x2, y2, 1);
+		updateDisplay();
+	}
+
+	y2 = SSD_HEIGHT - 1;
+
+	//FIXME!!!
+	for (x2 = 0; x2 < SSD_WIDTH; x2 += 4)
+	{
+		drawLine(x1, y1, x2, y2, 1);
+		updateDisplay();
+	}
 }
 
 int main(void)
 {
 
-	initSerial(0, 57600);
-	initScreen();
-
 	TWBR = 0x00;		//make it fast i guess
 	TWSR &= (0xFC);		//clear prescaler bits
-
 	_delay_ms(500);
+
+	initScreen();
+	initSerial(0, 57600);
+	sendStr("Hello there\r\n");
+	clearScreen();
+	updateDisplay();
+	sendStr("updateDisplay");
+	_delay_ms(500);
+
+	int y = 0;
+	int x = 0;
+	sendStr("drawing");
+	for (x = 0; x < SSD_WIDTH; x += 3)
+		for (y = 0; y < SSD_HEIGHT; y++)
+		{
+
+			setPixel(x, y, (x + y) % 3);
+			/*			unsigned char bar[] =
+			 { 0x40, (1 << (y++ % 8)) };
+			 sendI2C(0x3C, bar, 2);*/
+		}
+
+	updateDisplay();
 
 	clearScreen();
 	updateDisplay();
+	drawLine(0, 0, 25, 25, 1);
+	drawLine(25, 0, 0, 25, 1);
+
+	drawLine(0, 0, SSD_WIDTH - 1, 0, 1);
+	drawLine(SSD_WIDTH - 1, 0, SSD_WIDTH - 1, SSD_HEIGHT - 1, 1);
+	drawLine(SSD_WIDTH - 1, SSD_HEIGHT - 1, 0, SSD_HEIGHT - 1, 1);
+	drawLine(0, SSD_HEIGHT - 1, 0, 0, 1);
+
+	for (y = 0; y < 23; y++)
+		setPixel(127, y, 0);
+
+	drawLine(0, 0, 24, 14, 1);
+
+	lineTest();
+	clearScreen();
+	updateDisplay();
+	while (1)
+	{
+
+		clearScreen();
+		updateDisplay();
+
+		int col = 3;
+		char msg[] = "Hello WorldAVRs are fun!";
+
+		int pc = 0;
+		for (pc = 0; pc < 11; pc++)
+		{
+			drawChar(msg[pc], col, 0);
+			col += 8;
+			updateDisplay();
+			_delay_ms(100);
+		}
+
+		col=8;
+		for (pc = 11; pc < 24; pc++)
+		{
+			drawChar(msg[pc], col, 2);
+			col += 8;
+			updateDisplay();
+			_delay_ms(100);
+		}
+
+		_delay_ms(1000);
+
+	};
 
 //not sure about this
 //TWDR = 0xC0;	//0xC0 := databytes and commands requires
 //TWDR = 0x40;	//0x40 := stream of databytes
-//setContrast(0xFF);
-	int i = 0;
-	int j = 0;
-	int y = 0;
-	for (j = 0; j < 8; j++)
-		for (i = 0; i < 127; i++)
-		{
-			unsigned char bar[] =
-			{ 0x40, (1 << (y++ % 8)) };
-			sendI2C(0x3C, bar, 2);
-		}
 
 	setContrast(0x00);
-	_delay_ms(500);
+
 	setContrast(0xFF);
 	_delay_ms(500);
 	setContrast(0x00);
@@ -329,7 +342,9 @@ int main(void)
 	clearScreen();
 	updateDisplay();
 
-	setPinDirection(&DP12DDR, DP12MASK, 1);
+	_delay_ms(1000);
+	sendStr("entering infinite loop");
+	//setPinDirection(&DP12DDR, DP12MASK, 1);
 
 	bufferIn[BUFFER_SIZE] = '\0';
 	unsigned bip = 0;
