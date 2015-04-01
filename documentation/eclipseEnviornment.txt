@@ -1,1 +1,5 @@
-begin here
+
+Examples:
+http://www.thesitewizard.com/general/set-cron-job.shtml
+
+
