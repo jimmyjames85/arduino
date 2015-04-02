@@ -1,3 +1,7 @@
+
+
+TODO how to read the datasheets
+
 dpin_00 PE0
 dpin_01 PE1
 dpin_02 PE4
