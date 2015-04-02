@@ -1,5 +1,81 @@
 
+
+
 Examples:
 http://www.thesitewizard.com/general/set-cron-job.shtml
 https://www.atlassian.com/git/tutorials/merging-vs-rebasing/conceptual-overview
+
+Arduino Shield is just that: a shield. 
+
+This tutorial is for you if:
+
+In this tutorial I assume you are familiar with C and makefiles or are
+willing to learn on your own in these areas.
+
+
+Download Eclipse.
+
+ There is a C/C++ option Eclipse o has C/C++ option
+
+
+The Arduino is an AVR, and thus can be programmed directly without the
+Arduino IDE, but rather directly with a C compiler and a programmer or
+an uploader. To do this we will convert Arduino's familiar steps:
+
+1. Write your sketch (e.g. blink.ino)     1. Write your program (e.g. blink.c or blink.cpp)
+2. Verify it                              2. Compile it
+3. Upload it                              3. Upload it 
+
+
+======================================================================
+Installing the AVR Tool Chain
+======================================================================
+
+sudo apt-get install gcc-avr avrdude avrdude-doc binutils-avr avr-libc gdb-avr
+
+
+gcc-avr             # the avr c compiler
+avrdude             # the programmer or uploader
+avrdude-doc         # 
+binutils-avr        # 
+avr-libc            # the avr libraries
+gdb-avr             # the avr debugger
+
+
+
+
+1. Write your program (e.g. blink.c)
+
+Do this with your favorite editor. I personally use Eclipse [link to
+eclipse tutorial] and their CDT plugin and I create a makefile
+project. I strongly recommend you use a makefile. [TODO why] 
+
+The editor you choose doesn't matter (to me). It matters to you. So
+pick one you like. [VI till I DIE!!!!!!]
+
+
+
+2. Compile it
+
+From the command line 
+
+TODO: pick change values accordingly to which board you have!!!!
+
+avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega2560 -c blink.c -o blink.o 
+avr-gcc -mmcu=atmega2560 blink.o -o blink.a 
+avr-objcopy -O ihex -R .eeprom blink.a blink.hex
+avrdude -F -v -p m2560 -c stk500 -P /dev/ttyACM0 -U flash:w:blink.hex
+
+
+Hopefully the led on your board should begin to blink.
+
+Now we have a hex file that the arduino bootloader can
+understand. Connect your big computer up to the arduino via the USB
+cable and run the following command.
+
+
+
+
+
+
 
