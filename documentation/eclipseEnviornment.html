@@ -1,12 +1,36 @@
 <html>
-
+<link rel="stylesheet" type="text/css" href="style.css"/>
 
 <div class="codeblock">
-for(int i=0;i<34;i++)
+<pre>
+#include &lt;avr/io.h&gt;
+#include &lt;util/delay.h&gt;
+ 
+enum {
+ BLINK_DELAY_MS = 1000,
+};
+ 
+int main (void)
 {
-	
+ /* set pin 5 of PORTB for output*/
+ DDRB |= _BV(DDB5);
+ 
+ while(1) {
+  /* set pin 5 high to turn led on */
+  PORTB |= _BV(PORTB5);
+  _delay_ms(BLINK_DELAY_MS);
+ 
+  /* set pin 5 low to turn led off */
+  PORTB &= ~_BV(PORTB5);
+  _delay_ms(BLINK_DELAY_MS);
+ }
+ 
+ return 0;
 }
+</pre>
 </div>
+
+
 
 <pre>
 
