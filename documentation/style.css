@@ -1,11 +1,24 @@
-div.codeblock 
+div.commandline
 {
-    border: 1px solid green;
+    border: 1px solid #00878F;
     font-family: "Courier New", Courier, monospace;
     font-size: 12pt ;
     padding: 8px 8px 8px 8px ;
-    background-color: #6A5743;
-    color: #00878F;
+    background-color: #000000;
+    color: #00AA00;
+
+}
+
+
+
+div.code
+{
+    border: 1px solid #00878F;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 12pt ;
+    padding: 8px 8px 8px 8px ;
+    background-color: #333333;
+    color: #62AEB2;
 
 /*
 
@@ -22,3 +35,36 @@ Brown	     #8C7965
 
 }
 
+div.keyword
+{
+    color: #E47128;
+}
+
+td.tableheader
+{
+    border: 1px solid #00878F;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 12pt ;
+    padding: 8px 8px 8px 8px ;
+
+}
+
+tr.tableheader
+{
+/*    display: block;*/
+    border: 1px solid #00878F;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 12pt ;
+    padding: 8px 8px 8px 8px ;
+
+}
+
+div.anaside
+{
+    left: 200px;
+    border: 1px solid #00878F;
+    /*font-family: "Courier New", Courier, monospace;*/
+    font-size: 10pt ;
+    padding: 8px 8px 8px 8px ;
+    background-color: #E5AD24;
+}

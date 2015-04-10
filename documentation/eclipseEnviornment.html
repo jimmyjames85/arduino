@@ -1,38 +1,380 @@
 <html>
 <link rel="stylesheet" type="text/css" href="style.css"/>
 
-<div class="codeblock">
-<pre>
-#include &lt;avr/io.h&gt;
-#include &lt;util/delay.h&gt;
- 
-enum {
- BLINK_DELAY_MS = 1000,
-};
- 
-int main (void)
-{
- /* set pin 5 of PORTB for output*/
- DDRB |= _BV(DDB5);
- 
- while(1) {
-  /* set pin 5 high to turn led on */
-  PORTB |= _BV(PORTB5);
-  _delay_ms(BLINK_DELAY_MS);
- 
-  /* set pin 5 low to turn led off */
-  PORTB &= ~_BV(PORTB5);
-  _delay_ms(BLINK_DELAY_MS);
- }
- 
- return 0;
-}
-</pre>
+<h1>Blink in Pure C</h1>
+
+<hr>
+
+<p>
+When you write code in the Arduino editor you are writing in C and/or
+C++. When you upload your code to the Arduino shield, you are
+programming its Atmega chip. To do this the Arduino IDE does a lot
+work for you in the background. This entire proccess is what is called
+the toolchain. If you are anything like me you want to get started
+right away. So let's get on with it. The code below is the equivelent
+to Blink, but instead of using the Arduino libraries it only uses AVR
+libraries.
+</p>
+
+Copy the code below into the Arduino editor and upload it to your Arduino.
+
+ARDUINO UNO [TODO (MEGA)]
+
+<br><br>
+
+
+<table>
+<tr><td>
+<div class="code">
+<br>
+     /* blink.c */<br>
+<br>
+     #include &lt;avr/io.h&gt;<br>
+     #include &lt;util/delay.h&gt;<br>
+      <br>
+     <div class="keyword">enum</div> { BLINK_DELAY_MS = 1000 };<br>
+      <br>
+     int main (void)<br>
+     {<br>
+<br>
+          DDRB |= _BV(DDB5);                  /* set pin 5 of PORTB for output*/<br>
+          <br>
+          while(1) <br>
+          {<br>
+               PORTB |= _BV(PORTB5);          /* set pin 5 high to turn led on */<br>
+               _delay_ms(BLINK_DELAY_MS);<br>
+<br>
+               PORTB &= ~_BV(PORTB5);         /* set pin 5 low to turn led off */<br>
+               _delay_ms(BLINK_DELAY_MS);<br>
+          }<br>
+<br>
+      <br>
+          return 0;  /* CODE SHOULD NEVER REACH HERE */<br>
+     }<br>
+<br>
+
+</div>
+</td></tr>
+</table>
+
+
+<br><br>
+
+<p>
+Using the Arduino editor is a completely valid way to code your
+projects. The editor is simple and it works. The next section
+describes how to setup and use the AVR toolchain rather than Arduino's
+IDE. If you're fine with coding your projects in this way feel free to
+skip the next section.
+</p>
+
+<hr>
+<H1>Installing the AVR Toolchain</H1>
+
+<p>
+Abandoning the Arduino IDE means you will need to obtain and manage
+your own <i>chain of tools</i> in order to load your final project
+onto the Arduino. The command line options for these tools are often
+cryptic and easy to forget. Using a makefile will help keep things
+organized and enable you make changes in the future if need be
+(e.g. if you decide to switch from an Uno to a Leo). The steps of your
+toolchain will be very similiar to Arduino's Verify and Upload,
+however, you will need to know which tool to use for each step.
+</p>
+<!--TODO Change the table to a graphic?!?!-->
+<table>
+<tr>
+  <td class="tableheader" colspan="2">&nbsp;AVR Toolchain Step</td>
+  <td class="tableheader" colspan="2">&nbsp;Tool</td> 
+</tr>
+<tr>
+  <td colspan="2"> 
+    <ol>
+      <li> Write your Program (e.g. blink.c) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+      <li> Compile</li>
+      <li> Convert to machine code</li>
+      <li> Upload to your Arduino</li>
+    </ol>
+  </td>
+  <td colspan="2"> 
+    <ul>
+      <li> Editor of your choice&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+      <li> avr-gcc</li>
+      <li> avr-objcpy</li>
+      <li> avrdude</li>
+    </ul>
+  </td>
+</tr>
+</table>
+
+<h3>The AVR Tools</h3>
+<p>
+Before you get started you will need to download and install the
+following AVR tools and utilities:
+</p>
+
+<table>
+  <td>
+    <ul>
+      <li>gcc-avr</li>
+      <li>avrdude</li>
+      <li>avrdude-doc</li>
+      <li>binutils-avr &nbsp;&nbsp;&nbsp;&nbsp; </li>
+      <li>avr-libc</li>
+      <li>gdb-avr</li>
+    </ul>
+  </td>
+  <td>
+    <ul>
+      <li> The GNU C compiler (cross compiler for AVR)</li>
+      <li> Software for programming Atmel AVR microcontrollers &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+      <li> Documentation for avrdude</li>
+      <li> Binary utilities supporting Atmel's AVR targets</li>
+      <li> Standard C library for Atmel AVR development</li>
+      <li> The GNU Debugger for AVR</li>
+    </ul>
+  </td>
+</tr>
+</table>
+
+<p>
+For Debian based distros open up a terminal and type:
+<div class="commandline">
+sudo apt-get install gcc-avr avrdude avrdude-doc binutils-avr avr-libc
+gdb-avr<br>
+</div>
+</p>
+<p>
+For Red Hat or Fedora type: 
+<div class="commandline">
+sudo yum install gcc-avr avrdude avrdude-doc binutils-avr avr-libc
+gdb-avr<br>
+</div>
+</p>
+
+
+<div class="anaside"> C code is stored as text and you will need a
+"plain text" editor or an IDE to write your projects with. There are
+some very powerful text editors like Emacs or Vim that are geared for
+coding. IDEs generally include a text editor along with some
+additional tools that make navigating your code easier. I personally
+use Eclipse which even has an AVR plugin available. Check out my
+tutorial here on how to setup the eclipse enviornment for use with the
+Arduino. Atmel has there own Atmel Studio which is specifically
+designed for pograming Atmega AVRs. The editor or IDE you choose
+doesn't matter (to me). It matters to you. So pick one you
+like. </div>
+
+
+<!--
+<table>
+<tr><td class="tableheader" colspan="2">&nbsp;Text
+Editors&nbsp;&nbsp;</td> <td class="tableheader"
+colspan="2">&nbsp;IDEs&nbsp;&nbsp;</td> </tr>
+<tr><td colspan="2">
+    <ul>
+<li> Emacs &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+<li> Vi </li>
+<li> gedit</li>
+<li> Notepad++</li>
+    </ul>
+</td>
+<td colspan="2"> 
+    <ul>
+<li> Eclipse&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+<li> Code::Blocks</li>
+<li> CodeLite</li>
+<li> Atmel Studio</li>
+    </ul>
+</td>
+</tr>
+</table>
+
+<div class="anaside">
+<b>Makefile</b><br> The Because you will be managing you own toolchain You've done away with the Arduino toolchain. So
+ you will need to develop and manage your own <i>chain of
+ tools</i>. The command line options for these tools can often be
+ cryptic and easy to forget. Using a makefile will help keep things
+ organized and enable you to easily make changes in the future if need
+ be (e.g. if you decide to switch from an Uno to a Leo).
+</div>
+-->
+<hr>
+<h1>Executing the Toolchain</h1>
+<p>
+Now you're ready to for a test run. Copy and paste the blink program
+(above) into your text editor and save it
+to <a href="blink.c">blink.c</a>.
+
+In order to compile your code you'll need some information about your
+Arduino board, specifically the microcontroller type and the AVR
+chip's clock speed.
+
+
+ The MCU type should printed on the AVR chip on
+your board. If not you can find it on
+Arduino's <a href="http://arduino.cc/en/Main/Products">website</a>. There
+you can also download the datasheet for your AVR. This datasheet is
+very important. It will have all the information you need about your
+board. You can also download it directly from Atmel's datasheet <a href="http://www.atmel.com/products/microcontrollers/avr/?tab=documents">website</a>.
+</p>
+
+
+<table style="border-collapse:collapse;">
+  <tr class="tableheader">
+    <td colspan="2">&nbsp;avr-gcc</td>
+  </tr>
+  <tr>
+    <td>MCU</td>
+    <td>The MCU type should be printed on the AVR chip on your
+      board. If not you can find it on
+      Arduino's <a href="http://arduino.cc/en/Main/Products">website</a>. To
+      get a list of Known MCU names you can type "avr-gcc
+      --target-help". The Uno uses the ATmega328p which means we will
+      be passing atmega328p to the compiler.</td>
+  </tr>
+  <tr>
+    <td>F_CPU</td>
+    <td>The clock speed can be found in the Atmel datasheet for your
+    AVR chip. If incorrect this will affect anything that requires
+    proper timing like serial communication or even delay. The
+    datasheet can be obtained from
+    Atmel's <a href="http://www.atmel.com/products/microcontrollers/avr/?tab=documents">website</a>
+    or from
+    Arduino's <a href="http://arduino.cc/en/Main/Products">website</a>.
+    </td>
+  </tr>
+  <tr>
+    <td>-0s</td>
+    <td>This will turn on compiler optimizations. This is needed in
+    order for the delay function
+    to <a href="http://www.avrfreaks.net/forum/compiler-optimization-1">work</a>
+    properly.</td>
+  </tr>
+
+  <tr class="tableheader">
+    <td colspan="2">avr-objcopy</td>
+  </tr>
+  <tr>
+    <td>-O ihex</td>
+    <td>We want to convert our binary file into a hex file the usb
+    programmer can understand. So we specify -O ihex (Intel Hex) to make this happen.
+    </td>
+  </tr>
+  <tr>
+    <td>-R .eeprom</td>
+    <td>EEPROM is the section of memory that persists when the board
+    is turned off. We want to leave this part of memory alone. This
+    will argument removes the EEPROM section from our binary before
+    converting it to hex. </td>
+  </tr>
+
+  <tr class="tableheader">
+    <td colspan="2">avrdude</td>
+  </tr>
+  <tr>
+    <td>partno&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td>This also specifies the type of the MCU you have but will have
+    a different format than the compiler argument. To find your partno
+    you can type "avrdude -p ?" to get a listing valid parts. For the
+    Uno's, the ATmega128p is listed as m328p</td>
+  </tr>
+  <tr>
+    <td>programmer-id</td>
+    <td>Generally when uploading code to microcontroller you need a
+    separate device called a programmer. There are many different
+    types of programmers out there. To get a listing of supported
+    programmers by typing "avrdude -c ?". Lucky for you every Arduino
+    has a usb programmer right on the board! Every Arduino board's
+    programmer type is different and can be
+    found <a href="http://arduino.cc/en/uploads/Main/boards.txt">here</a>.
+    For the Uno the programmer-id is listed as
+    uno.upload.protocol=stk500.<td>
+  </tr>
+<tr>
+  <td>port</td>
+  <td>This simply refers to the usb port your Arduino is plugged
+  into. This should already be familiar to you from using Arduino's
+  IDE under Tools -> Serial Port. For our example we will use
+  /dev/ttyACM0 </td>
+</tr>
+<tr>
+  <td>-U memtype:op:filename  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+  <td>This is the memory operation we want avrdude to preform. In our
+  case, we want to write our hex file to flash ROM. As you gain more
+  experience you can write to other parts of memory
+  (e.g. eeprom). Learn more by taking a look at avrdude's man
+  page. For now we want flash:w:blink.hex</td>
+</tr>
+
+
+</table>
+
+<p>
+<div class="commandline">
+avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c blink.c -o blink.o<br>
+avr-gcc -mmcu=atmega328p blink.o -o blink.a<br>
+avr-objcopy -O ihex -R .eeprom blink.a blink.hex<br>
+avrdude -F -v -p m328p -c stk500 -P /dev/ttyACM0 -U flash:w:blink.hex<br>
 </div>
 
+<br>
 
 
-<pre>
+</p>
+atmega2560
+
+CC=avr-gcc
+OBJCP=avr-objcopy
+CFLAGS=-mmcu=$(MCU) -Iincludes
+AVRDUDE_RUNNING=`ps -e | grep "eclipse" > /dev/null`
+UPLOAD=avrdude -F -v -p m2560 -c stk500 -P /dev/ttyACM0 -U flash:w:hex/blink.hex
+UPLOADPUTTY=avrdude -F -v -p m2560 -c stk500 -P /dev/ttyACM0 -U flash:w:hex/blink.hex; putty -load arduino
+
+all: blink.hex
+
+
+uploadPutty: 
+	if  ps -e | grep "avrdude" > /dev/null ; then echo "ABORT: avrdude is running" ;  exit ; else if ps -e | grep "putty" > /dev/null ; then echo "ABORT: putty is running" ;  exit ; else $(UPLOADPUTTY); fi ; fi;
+	
+upload:
+	if  ps -e | grep "avrdude" > /dev/null ; then echo "ABORT: avrdude is running" ;  exit ; else $(UPLOAD); fi; 
+
+
+	
+blink.hex: folders blink.a
+	$(OBJCP) -O ihex -R .eeprom bin/blink.a hex/blink.hex
+
+blink.a: blink.o ssd1306.o
+	$(CC) $(CFLAGS) obj/ssd1306.o obj/blink.o -o bin/blink.a
+
+blink.o:  src/blink.c 
+	$(CC) -Os -DF_CPU=$(CLOCKSPEED) $(CFLAGS) -c src/blink.c -o obj/blink.o
+
+ssd1306.o: src/ssd1306.c	
+	$(CC) -Os -DF_CPU=$(CLOCKSPEED) $(CFLAGS) -c src/ssd1306.c -o obj/ssd1306.o	 
+
+folders:
+	if ! [ -d "./obj" ]; then mkdir obj ; fi; if ! [ -d "./bin" ]; then mkdir bin ; fi; if ! [ -d "./hex" ]; then mkdir hex ; fi  
+	
+clean:
+	rm -rf obj bin hex
+
+
+an uploader. To do this we will convert Arduino's familiar steps:
+
+
+
+
+$(CC) -Os -DF_CPU=$(CLOCKSPEED) $(CFLAGS) -c src/blink.c -o obj/blink.o
+
+
+<!--
+<hr>
+<H1>Installing the AVR Toolchain</H1>
+<hr>
+
 
 Examples:
 http://www.thesitewizard.com/general/set-cron-job.shtml
@@ -45,8 +387,10 @@ This tutorial is for you if:
 In this tutorial I assume you are familiar with C and makefiles or are
 willing to learn on your own in these areas.
 
-
-Download Eclipse.
+Setting up your enviornment. If you're anything like me, you have the 
+If you
+Download Eclipse. 
+Specifically http://eclipse.org/downloads/packages/eclipse-ide-cc-developers/lunasr2
 
  There is a C/C++ option Eclipse o has C/C++ option
 
@@ -107,10 +451,10 @@ understand. Connect your big computer up to the arduino via the USB
 cable and run the following command.
 
 
+-->
 
 
 
 
 
-</pre>
 </html>
