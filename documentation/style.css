@@ -8,18 +8,6 @@ div.commandline
     color: #00AA00;
 
 }
-
-
-
-div.code
-{
-    border: 1px solid #00878F;
-    font-family: "Courier New", Courier, monospace;
-    font-size: 12pt ;
-    padding: 8px 8px 8px 8px ;
-    background-color: #333333;
-    color: #62AEB2;
-
 /*
 
 Arduino Suggested Colors
@@ -33,11 +21,58 @@ Brown	     #8C7965
 */
 
 
+
+.code
+{
+    border: 1px solid #00878F;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 11pt ;
+    padding: 8px 8px 8px 8px ;
+    background-color: #000000;/*333333;*/
+    color: #00878F;
+
+
 }
 
-div.keyword
+.preprocessorinclude
 {
-    color: #E47128;
+    color: #05e48f;
+    font-weight: bold;
+    font-size: 12pt;
+}
+
+.comment
+{
+    color: #8C7965;
+    font-size: 12pt ;
+}
+
+.preprocessor
+{
+    color: #E5AD24;
+    font-weight: bold;
+    font-size: 12pt ;
+}
+
+.funcname
+{
+    color: #E5AD24;
+    font-weight: bold;
+    font-size: 12pt ;
+}
+
+.primitive
+{
+    color: #427ED2;
+    font-weight: bold;
+    font-size: 12pt ;
+}
+
+.keyword
+{
+    color: #00FFFF;
+    font-weight: bold;
+    font-size: 12pt ;
 }
 
 td.tableheader

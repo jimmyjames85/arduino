@@ -27,29 +27,30 @@ ARDUINO UNO [TODO (MEGA)]
 <tr><td>
 <div class="code">
 <br>
-     /* blink.c */<br>
+     <span class="comment">/* blink.c */</span><br>
 <br>
-     #include &lt;avr/io.h&gt;<br>
-     #include &lt;util/delay.h&gt;<br>
+     <span class="preprocessor">#include</span> <span class="preprocessorinclude">&lt;avr/io.h&gt;</span><br>
+     <span class="preprocessor">#include</span> <span class="preprocessorinclude">&lt;util/delay.h&gt;</span><br>
       <br>
-     <div class="keyword">enum</div> { BLINK_DELAY_MS = 1000 };<br>
+     <span class="keyword">enum</span> { BLINK_DELAY_MS = 1000 };<br>
       <br>
-     int main (void)<br>
-     {<br>
+     <span class="primitive">int</span> <span class="funcname">main</span> <span class="primitive">(void)</span><br>
+{<br>
 <br>
-          DDRB |= _BV(DDB5);                  /* set pin 5 of PORTB for output*/<br>
-          <br>
-          while(1) <br>
-          {<br>
-               PORTB |= _BV(PORTB5);          /* set pin 5 high to turn led on */<br>
-               _delay_ms(BLINK_DELAY_MS);<br>
+&nbsp;&nbsp;&nbsp;&nbsp; DDRB |= _BV(DDB5); &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* set pin 5 of PORTB for output*/</span><br>
 <br>
-               PORTB &= ~_BV(PORTB5);         /* set pin 5 low to turn led off */<br>
-               _delay_ms(BLINK_DELAY_MS);<br>
-          }<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <span class="keyword">while</span>(1) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; PORTB |= _BV(PORTB5); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">/* set pin 5 high to turn led on */</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; _delay_ms(BLINK_DELAY_MS);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; PORTB &= ~_BV(PORTB5); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">/* set pin 5 low to turn led off */</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; _delay_ms(BLINK_DELAY_MS);<br>
+&nbsp;&nbsp;&nbsp;&nbsp; }<br>
 <br>
       <br>
-          return 0;  /* CODE SHOULD NEVER REACH HERE */<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> 0; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">/* CODE SHOULD NEVER REACH HERE */</span><br>
      }<br>
 <br>
 
@@ -323,6 +324,7 @@ avrdude -F -v -p m328p -c stk500 -P /dev/ttyACM0 -U flash:w:blink.hex<br>
 
 
 </p>
+<!--
 atmega2560
 
 CC=avr-gcc
