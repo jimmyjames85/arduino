@@ -1,60 +1,36 @@
 <html>
 <link rel="stylesheet" type="text/css" href="style.css"/>
 
-<h1>Blink in Pure C</h1>
+<body onload="updateBlinkSourceCode()">
+
+<h1>Arduino in C</h1>
 
 <hr>
 
 <p>
-When you write code in the Arduino editor you are writing in C and/or
-C++. When you upload your code to the Arduino shield, you are
-programming its Atmega chip. To do this the Arduino IDE does a lot
-work for you in the background. This entire proccess is what is called
-the toolchain. If you are anything like me you want to get started
-right away. So let's get on with it. The code below is the equivelent
-to Blink, but instead of using the Arduino libraries it only uses AVR
-libraries.
+When you program your Arduino board with the Arduino editor you
+essentially are coding in C and/or C++. When you upload your code to
+the Arduino shield, you are programming its Atmega chip. To do this
+the Arduino IDE does a lot work for you in the background. This entire
+process is what is called the
+toolchain. Click <a href="#toolchain">here</a> to learn how to bypass
+Arduino's toolchain by developing your own. </p>
+<p>The code below is the equivalent to the Blink sketch, but instead
+of using the Arduino libraries it only uses AVR libraries.
 </p>
 
 Copy the code below into the Arduino editor and upload it to your Arduino.
 
-ARDUINO UNO [TODO (MEGA)]
-
 <br><br>
 
+<select id="boardSelector" onchange="updateBlinkSourceCode()">
+  <option value="uno">Arduino Uno</option>
+  <option value="mega">Arduino Mega</option>
+</select>
 
 <table>
 <tr><td>
-<div class="code">
-<br>
-     <span class="comment">/* blink.c */</span><br>
-<br>
-     <span class="preprocessor">#include</span> <span class="preprocessorinclude">&lt;avr/io.h&gt;</span><br>
-     <span class="preprocessor">#include</span> <span class="preprocessorinclude">&lt;util/delay.h&gt;</span><br>
-      <br>
-     <span class="keyword">enum</span> { BLINK_DELAY_MS = 1000 };<br>
-      <br>
-     <span class="primitive">int</span> <span class="funcname">main</span> <span class="primitive">(void)</span><br>
-{<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp; DDRB |= _BV(DDB5); &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* set pin 5 of PORTB for output*/</span><br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp; <span class="keyword">while</span>(1) <br>
-&nbsp;&nbsp;&nbsp;&nbsp; {<br>
-&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; PORTB |= _BV(PORTB5); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">/* set pin 5 high to turn led on */</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; _delay_ms(BLINK_DELAY_MS);<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; PORTB &= ~_BV(PORTB5); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">/* set pin 5 low to turn led off */</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; _delay_ms(BLINK_DELAY_MS);<br>
-&nbsp;&nbsp;&nbsp;&nbsp; }<br>
-<br>
-      <br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> 0; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">/* CODE SHOULD NEVER REACH HERE */</span><br>
-     }<br>
-<br>
-
-</div>
+<div class="code" id="blinkSourceCode"></div>
 </td></tr>
 </table>
 
@@ -454,9 +430,88 @@ cable and run the following command.
 
 
 -->
+</body>
 
 
+<script>
 
 
+var UNO_BLINK_SOURCE_CODE_TEXT ="<br>\
+     <span class=\"comment\">/* blink.c -- For the Uno */</span><br>\
+<br>\
+     <span class=\"preprocessor\">#include</span> <span class=\"preprocessorinclude\">&lt;avr/io.h&gt;</span><br>\
+     <span class=\"preprocessor\">#include</span> <span class=\"preprocessorinclude\">&lt;util/delay.h&gt;</span><br>\
+      <br>\
+     <span class=\"keyword\">enum</span> { BLINK_DELAY_MS = 1000 };<br>\
+      <br>\
+     <span class=\"primitive\">int</span> <span class=\"funcname\">main</span> <span class=\"primitive\">(void)</span><br>\
+{<br>\
+<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; DDRB |= _BV(DDB5); &nbsp;&nbsp;&nbsp;&nbsp;<span class=\"comment\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* set pin 5 of PORTB for output*/</span><br>\
+<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; <span class=\"keyword\">while</span>(1) <br>\
+&nbsp;&nbsp;&nbsp;&nbsp; {<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; PORTB |= _BV(PORTB5); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"comment\">/* set pin 5 high to turn led on */</span><br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; _delay_ms(BLINK_DELAY_MS);<br>\
+<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; PORTB &= ~_BV(PORTB5); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"comment\">/* set pin 5 low to turn led off */</span><br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; _delay_ms(BLINK_DELAY_MS);<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; }<br>\
+<br>\
+      <br>\
+&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"keyword\">return</span> 0; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class=\"comment\">/* CODE SHOULD NEVER REACH HERE */</span><br>\
+     }<br>\
+<br>"
+
+var MEGA_BLINK_SOURCE_CODE_TEXT =  "<br>\
+     <span class=\"comment\">/* blink.c -- For the Mega */</span><br>\
+<br>\
+     <span class=\"preprocessor\">#include</span> <span class=\"preprocessorinclude\">&lt;avr/io.h&gt;</span><br>\
+     <span class=\"preprocessor\">#include</span> <span class=\"preprocessorinclude\">&lt;util/delay.h&gt;</span><br>\
+      <br>\
+     <span class=\"keyword\">enum</span> { BLINK_DELAY_MS = 1000 };<br>\
+      <br>\
+     <span class=\"primitive\">int</span> <span class=\"funcname\">main</span> <span class=\"primitive\">(void)</span><br>\
+{<br>\
+<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; DDRB |= _BV(DDB7); &nbsp;&nbsp;&nbsp;&nbsp;<span class=\"comment\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* set pin 7 of PORTB for output*/</span><br>\
+<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; <span class=\"keyword\">while</span>(1) <br>\
+&nbsp;&nbsp;&nbsp;&nbsp; {<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; PORTB |= _BV(PORTB7); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"comment\">/* set pin 7 high to turn led on */</span><br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; _delay_ms(BLINK_DELAY_MS);<br>\
+<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; PORTB &= ~_BV(PORTB7); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"comment\">/* set pin 7 low to turn led off */</span><br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; _delay_ms(BLINK_DELAY_MS);<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; }<br>\
+<br>\
+      <br>\
+&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"keyword\">return</span> 0; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class=\"comment\">/* CODE SHOULD NEVER REACH HERE */</span><br>\
+     }<br>\
+<br>"
+
+var UNO_COMPILE_TEXT =""
+
+
+var MEGA_COMPILE_TEXT =""
+
+
+function updateBlinkSourceCode()
+{
+	var select = document.getElementById("boardSelector");
+	var boardType = select.options[select.selectedIndex].value;
+	if(boardType == "uno")
+	{
+		document.getElementById("blinkSourceCode").innerHTML=UNO_BLINK_SOURCE_CODE_TEXT;
+	}
+	else
+		document.getElementById("blinkSourceCode").innerHTML=MEGA_BLINK_SOURCE_CODE_TEXT;
+
+}
+
+</script>
 
 </html>
+,
