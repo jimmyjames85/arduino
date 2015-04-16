@@ -1,17 +1,38 @@
 <html>
 <link rel="stylesheet" type="text/css" href="style.css"/>
-
 <body onload="updateBlinkSourceCode()">
 
-<h1>Arduino in C</h1>
 
+
+<h1>Is Arduino C?</h1>
 <hr>
 
 <p>
-When you program your Arduino board with the Arduino editor you
-essentially are coding in C and/or C++. When you upload your code to
-the Arduino shield, you are programming its Atmega chip. To do this
-the Arduino IDE does a lot work for you in the background. This entire
+The short answer is yes. The Arduino libraries are actually written in
+C and C++. This is because the underlying Atmega chip and AVR C/C++
+compiler was designed to understand these languages. Technichally you
+could code the Arduino
+in <a href="http://forum.arduino.cc/index.php?topic=4114.0"
+class="link">assembely</a> if you wanted. <i>Technichally</i> you are
+coding the Arduino's Atmega chip. The libraries have done a have done
+a fantastic job at providing us with <a title="Syntax designed to
+sweeten the language for readability."
+href="http://en.wikipedia.org/wiki/Syntactic_sugar"
+class="tooltip">syntatic sugar</a> and the toolchain does a lot of
+background work to make coding the Arduino easy and enjoyable. In
+fact, the Arduino editor will accept C, C++, and Assembley. While the
+syntatic sugar of the libariers is nice, they take up some valuable
+resources.  doesn't allow you to fully take advantage of the Arduino's
+full capabilities. This is because the using the Arduino libraries
+take up resources that you may need.  is an all or nothing
+
+, you may have reached a point in your
+project where you need more space
+
+This is because the underlying Atmega chip accepts both
+C and C++. 
+
+and most of the Arduino libraries are written in C++.  This entire
 process is what is called the
 toolchain. Click <a href="#toolchain">here</a> to learn how to bypass
 Arduino's toolchain by developing your own. </p>
@@ -117,8 +138,16 @@ following AVR tools and utilities:
 <p>
 For Debian based distros open up a terminal and type:
 <div class="commandline">
-sudo apt-get install gcc-avr avrdude avrdude-doc binutils-avr avr-libc
-gdb-avr<br>
+sudo apt-get install 
+
+<a title="The GNU C compiler (cross compiler for AVR)">gcc-avr</a>
+<a title="Software for programming Atmel AVR microcontrollers">avrdude</a>
+<a title="Documentation for avrdude">avrdude-doc</a>
+<a title="Binary utilities supporting Atmel's AVR targets">binutils-avr</a>
+<a title="Standard C library for Atmel AVR development">avr-libc</a>
+<a title="The GNU Debugger for AVR">gdb-avr</a>
+
+<br>
 </div>
 </p>
 <p>
