@@ -79,9 +79,10 @@ like! </p></div>
 <H1>Installing the AVR Toolchain</H1>
 
 <p>Installing the tools you'll need is as simple as using your
-favorite package manager. Click <a>here</a> for a closer look at
-building and installing the toolchain. Below is a brief description of
-the tools you will be using:
+favorite package
+manager. Click <a href="http://nongnu.org/avr-libc/user-manual/install_tools.html">here</a>
+for a closer look at building and installing the toolchain. Below is a
+brief description of the tools you will be using:
 </p>
 
 <table class="toolChainTable">
@@ -405,8 +406,8 @@ From the console navigate to the file <a>blink.c</a> and type:
 have more object files to link together. Right now for blink you only
 have one: <a>blink.o</a>. Because the F_CPU was defined in the
 previous step and the optimizations have already occurred we do not
-need to pass those arguments. However you still need to pass the MCU
-type.
+need to pass those arguments again. However you still need to pass the
+MCU type.
 </p>
 
 
@@ -436,7 +437,7 @@ From the console type:
 
 <p>
 Now that you have one single binary file <a>blink.a</a> you need to
-convert it to an Intel Hex file that the USB programmer can
+convert it to an Intel Hex file that the USB programmer will
 understand. You may or may not wish to include the EEPROM section when
 you upload in the next step.
 </p>
@@ -523,7 +524,7 @@ programmer right on the board!
     will be the same port you use when working with the Arduino IDE
     under Tools -> Serial Port.<br><br> <span class="warning">Do not simply
     copy and paste the code below without changing this argument to the
-    correct port. You must select the port your board is
+    correct port. You must select the port <i>YOUR</i> board is
     connected to.</span>
   </td>
 </tr>
