@@ -77,7 +77,7 @@ avrdude -F -v -p m2560 -c stk500 -P /dev/ttyACM0 -U flash:w:blink.hex
 
 
 Hopefully the led on your board should begin to blink.
-
+p
 Now we have a hex file that the arduino bootloader can
 understand. Connect your big computer up to the arduino via the USB
 cable and run the following command.

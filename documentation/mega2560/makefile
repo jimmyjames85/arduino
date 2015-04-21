@@ -16,7 +16,22 @@ UPLOAD=avrdude -p $(PARTNO) -c $(PROGRAMMER_ID) -P $(PORT) -U flash:w:blink.hex
 
 UPLOADPUTTY=avrdude -F -v -p m2560 -c stk500 -P /dev/ttyACM0 -U flash:w:hex/blink.hex; putty -load arduino
 
-all: blink.hex
+#all: blink.hex
+
+all: step5
+
+step5: step4
+	avrdude -v -p m2560 -c stk500v2 -P /dev/ttyACM0 -U flash:w:blink.hex
+step4: step3
+	avr-objcopy -O ihex -R .eeprom blink.a blink.hex
+step3: step2
+	avr-gcc -mmcu=atmega2560 blink.o -o blink.a
+step2: step1
+	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega2560 -c blink.c -o blink.o
+step1: blink.c
+	touch blink.c
+
+
 
 
 upload: blink.hex

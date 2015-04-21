@@ -1,0 +1,892 @@
+<html>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+<body onload="updateSelector(1)" bgcolor="#00878F">
+<div class="topDiv">
+<br>
+<img src="img/communityLogo.png"> 
+<h1 style="margin-top:35px;">Blink in C</h1>
+<p>
+If you've ever wondered if you could program your Arduino in C the
+answer is yes. Technically you could code the Arduino
+in <a href="http://forum.arduino.cc/index.php?topic=4114.0"
+class="link">assembly</a> if you wanted to. This is because at the
+heart of the Arduino is the AVR microcontroller which can be coded in
+C. In fact all the Arduino libraries are written in C and C++ and
+Arduino has done a fantastic job at providing us with <a title="Syntax
+designed to sweeten the language for readability."
+href="http://en.wikipedia.org/wiki/Syntactic_sugar"
+class="tooltip">syntactic sugar</a>. However, this can cause overhead
+and take up valuable resources.
+</p>
+
+<p>
+Whether you want to take full advantage of your AVR or you just want
+to code the Atmega chip directly you will need to download some AVR
+tools and develop your own toolchain. In this tutorial, I'll show you
+what tools you'll need to download and how to setup your own toolchain
+in order to get started programming your Arduino in C.  <b>But first
+let's get our feet wet! </b> The code below is the equivalent to the
+Blink sketch, but instead of using Arduino's libraries it only uses
+AVR libraries. </p>
+
+
+<p class="directions">
+ Copy the code below into the Arduino editor and upload it to your
+Arduino.<br>
+<br></p>
+
+</div><!--End topDiv-->
+<div class="code">
+  <select id="boardSelector1" onchange="updateSelector(1)">
+    <option value="uno">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arduino Uno</option>
+    <option value="mega">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arduino Mega</option>
+  </select>
+  <div class="nobreakOverflow"  name="blinkSourceCode"></div>
+</div>
+<div class="topDiv">
+
+<p>
+Using the Arduino editor is a completely valid way to code your
+projects. The editor is simple and it works. However if you want to
+use a different editor or even an IDE you'll have to develop and use
+your own tool chain. The next section describes how to do just that. 
+</p>
+
+
+<div> <p>C code is stored as text and you will need a
+"plain text" editor or an IDE to write your projects with. There are
+some very powerful text editors like Emacs or Vim that are geared for
+coding. IDEs generally include a text editor along with some
+additional tools that make navigating your code easier. 
+</p>
+<p>
+I personally
+use Eclipse which even has an AVR plugin available. Check out my
+tutorial here on how to setup the eclipse environment for use with the
+Arduino. Atmel has there own Atmel Studio which is specifically
+designed for programming Atmega AVRs. The editor or IDE you choose
+doesn't matter (to me). It matters to you. So pick one you
+like! </p></div>
+
+</div><!--End topDiv-->
+
+<div class="newSection"></div>
+
+
+<div class="topDiv">
+
+
+<H1>Installing the AVR Toolchain</H1>
+
+<p>Installing the tools you'll need is as simple as using your
+favorite package manager. Click <a>here</a> for a closer look at
+building and installing the toolchain. Below is a brief description of
+the tools you will be using:
+</p>
+
+<table class="toolChainTable">
+  <tr>
+    <th>Tool</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>gcc-avr</td>
+    <td>The GNU C compiler (cross compiler for AVR)</td>
+  </tr>
+  <tr>
+    <td>avrdude</td>
+    <td>AVR Downloader/UploaDEr - Software for programming Atmel AVR microcontrollers</td>
+  </tr>
+  <tr>
+    <td class="nobreakOverflow">avrdude-doc</td>
+    <td>Documentation for avrdude</td>
+  </tr>
+  <tr>
+    <td>binutils-avr</td>
+    <td>Binary utilities supporting Atmel's AVR targets</td>
+  </tr>
+  <tr>
+    <td>avr-libc</td>
+    <td>Standard C library for Atmel AVR development</td>
+  </tr>
+  <tr>
+    <td>gdb-avr</td>
+    <td>The GNU Debugger for AVR</td>
+  </tr>
+</table>
+
+
+<p class="directions">
+Open up a terminal and type:
+<br><br></p>
+
+
+</div><!--End topDiv-->
+<div class="commandline">
+  <select id="distroSelector" onchange="updateDistroCode();">
+    <option value="debian">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Debian</option>
+    <option value="redhat">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fedora, Redhat</option>
+  </select>
+
+  <div class="nobreakOverflow"><br> sudo <span id="installer">apt-get</span> install 
+    
+    <a title="The GNU C compiler (cross compiler for AVR)">gcc-avr</a>
+    <a title="Software for programming Atmel AVR microcontrollers (AVR Downloader/UploaDEr)">avrdude</a>
+    <a title="Documentation for avrdude">avrdude-doc</a>
+    <a title="Binary utilities supporting Atmel's AVR targets">binutils-avr</a>
+    <a title="Standard C library for Atmel AVR development">avr-libc</a>
+    <a title="The GNU Debugger for AVR">gdb-avr</a>
+  
+    <br>
+    <br>
+  </div>
+</div>
+<div class="topDiv">
+</div><!--End topDiv-->
+
+<div class="newSection"></div>
+
+
+<div class="topDiv">
+<h1>Executing the Toolchain</h1>
+
+<p>
+Abandoning the Arduino IDE means you will need to obtain and manage
+your own <i>"chain of tools"</i> in order to load your final project
+onto the Arduino. The command line options for these tools are often
+cryptic and easy to forget. Using
+a <a href="http://www.tutorialspoint.com/makefile/">makefile</a> will
+help keep things organized and enable you make changes in the future
+if need be (e.g. if you decide to switch from an Uno to a Leo). The
+steps of your toolchain will be very similar to Arduino's
+Verify <img class="icon" src="img/arduinoVerify.png"> and
+Upload <img class="icon" src="img/arduinoUpload.png">, however, you
+will need to know which tool to use for each step. 
+
+</p>
+
+<p>
+Here is a preview of the toolchain commands you will be using:
+</p>
+
+
+
+</div><!--End topDiv-->
+<div class="commandline">
+  <select id="boardSelector2" onchange="updateSelector(2)">
+    <option value="uno">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arduino Uno</option>
+    <option value="mega">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arduino Mega</option>
+  </select>
+  
+  <div class="nobreakOverflow">
+    <br>
+    <div name="uploadStep1"></div>
+    <div name="uploadStep2"></div>
+    <div name="uploadStep3"></div>
+    <div name="uploadStep4"></div><br>
+  </div>
+</div>
+
+<div class="topDiv">
+
+<p>If you run these commands chances are you will run into an error
+and it will not work.  In order to understand what is going on above
+it will help to break it up into steps. Below is a description of the
+toolchain steps:
+</p>
+
+<br>
+<table class="toolChainTable">
+  <tr>
+    <th>&nbsp;Arduino Toolchain Step</th> 
+    <th>&nbsp;AVR Toolchain Step</th>
+    <th>&nbsp;Tool</th> 
+  </tr>
+  
+  <tr>
+    <td> 
+	 Write your Sketch (e.g. blink.ino) 
+    </td>
+    <td>
+	 1. Write your Program (e.g. blink.c) 
+    </td>
+    <td>
+      Editor of your choice
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+	<img class="icon" src="img/arduinoVerify.png"> Verify
+    </td>
+    <td>
+	2. Compile code to check for errors.
+    </td>
+    <td>
+	avr-gcc
+    </td>
+  </tr>
+
+  <tr>
+    <td rowspan="4">
+      <img class="icon" src="img/arduinoUpload.png"> Upload
+    </td> <!--Nothing maches for Convert to machine code -->
+    <td>
+	<a class="tooltip" title="Same step as above"><font color="#AAAAAA">2.</font></a> Compile code into separate object files.
+	<br><br><span class="example">This is the same step as Verify.</span>
+    </td>
+    <td>
+	avr-gcc
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      3. Link objects into one binary file.
+    </td>
+    <td>
+      avr-gcc
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      4. Convert binary file into machine code.
+    </td>
+    <td>
+      avr-objcpy
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      5. Upload machine code to your Arduino
+    </td>
+    <td>
+	avrdude
+    </td>
+  </tr>
+</table>
+
+<p>
+Notice how many steps Arduino does for you when you click Upload.  It
+will be very useful to learn what each tool can do. Most of these
+tools have a man page or a command line help page you can look at. You
+can also find more information
+about <a href="http://nongnu.org/avrdude/">avrdude</a> and
+the <a href="http://nongnu.org/avr-libc/user-manual/index.html">AVR
+Libraries</a> on the web.
+</p>
+
+</div><!--End topDiv-->
+
+<div class="newSection"></div>
+
+
+<div class="topDiv">
+
+<h1>Step 1: Program</h1>
+
+
+
+
+
+
+<p class="directions">
+Copy the code below into your favorite editor and save it as <a>blink.c</a>.
+<br><br></p>
+</div><!--End topDiv-->
+
+<div class="code">
+<select id="boardSelector3" onchange="updateSelector(3)">
+  <option value="uno">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arduino Uno</option>
+  <option value="mega">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arduino Mega</option>
+</select>
+
+  <div class="nobreakOverflow" name="blinkSourceCode"></div>
+</div>
+<div class="topDiv">
+
+
+</div><!--End topDiv-->
+
+<div class="newSection"></div>
+
+<div class="topDiv">
+
+<h1>Step 2: Compile</h1>
+
+<p>
+ In order to compile your code you'll need to gather some information
+about your board. Specifically you need to know what kind of
+microcontroller unit (MCU) you have and the MCU's clock speed. The MCU
+type should be printed on the AVR chip on your board.
+</p>
+
+</div><!--End topDiv-->
+<div class="arduinoPicture">
+  <div class="nobreakOverflow"> 
+    <br>
+    <center>
+      <img class="board" src="img/arduinomega2560.png">
+    </center>
+    <br>
+  </div>
+</div>
+<div class="topDiv">
+
+<p>
+If it's not printed on the chip you can find it
+listed <a href="http://www.arduino.cc/en/uploads/Main/boards.txt">here</a>
+along with the clockspeed you'll need. You should also download the
+datasheet for your AVR. This will come in handy as it has <i>all</i>
+the information you'll need for your board. Download it directly from
+the <a href="http://www.atmel.com/products/microcontrollers/avr/?tab=documents">Atmel</a>
+website.
+</p>
+
+
+<table class="toolChainTable">
+  <tr >
+    <th colspan="2">avr-gcc</th>
+  </tr>
+  <tr>
+    <td class="nobreakOverflow">-mmcu</td>
+    <td>The MCU type should be printed on the AVR chip on your
+      board. If not you can find it on the 
+      <a href="http://arduino.cc/en/Main/Products">Arduino</a>
+      website. To get a list of known MCU types from the command line
+      type "avr-gcc --target-help".<br><br><span class="example">For
+      example, the Uno uses the ATmega328p which means we would pass
+      the argument "-mmcu atmega328p" to compiler.</span></td>
+  </tr>
+  <tr>
+    <td class="nobreakOverflow">-DF_CPU</td>
+    <td>The clock speed can be found in the Atmel datasheet for your
+    AVR chip. If incorrect this will affect anything that requires
+    proper timing like serial communication and delays. The datasheet
+    can be obtained from
+    the <a href="http://www.atmel.com/products/microcontrollers/avr/?tab=documents">Atmel</a>
+    website or from the <a href="http://arduino.cc/en/Main/Products">Arduino</a> website.
+    </td>
+  </tr>
+  <tr>
+    <td class="nobreakOverflow">-Os</td>
+    <td>This will turn on compiler optimizations. This is needed in
+    order for the delay function
+    to <a href="http://www.avrfreaks.net/forum/compiler-optimization-1">work</a>
+    properly.</td>
+  </tr>
+</table>
+
+<p class="directions">
+From the console navigate to the file <a>blink.c</a> and type:
+<br><br></p>
+
+</div><!--End topDiv-->
+<div class="commandline">
+  <select id="boardSelector4" onchange="updateSelector(4)">
+    <option value="uno">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arduino Uno</option>
+    <option value="mega">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arduino Mega</option>
+  </select>
+  <br><br><div class="nobreakOverflow" name="uploadStep1"></div><br>
+</div>
+<div class="topDiv">
+
+</div><!--End topDiv-->
+
+<div class="newSection"></div>
+
+
+<div class="topDiv">
+
+<h1>Step 3: Link</h1>
+<p>As your projects get bigger and you start making libraries you will
+have more object files to link together. Right now for blink you only
+have one: <a>blink.o</a>. Because the F_CPU was defined in the
+previous step and the optimizations have already occured we do not
+need to pass those arguments. However you still need to pass the MCU
+type.
+</p>
+
+
+<p class="directions">
+From the console type:
+<br><br></p>
+
+
+</div><!--End topDiv-->
+<div class="commandline">
+<select id="boardSelector5" onchange="updateSelector(5)">
+  <option value="uno">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arduino Uno</option>
+  <option value="mega">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arduino Mega</option>
+</select><br><br>
+
+  <div class="nobreakOverflow" name="uploadStep2"></div><br>
+</div>
+<div class="topDiv">
+
+</div><!--End topDiv-->
+
+<div class="newSection"></div>
+
+<div class="topDiv">
+
+<h1>Step 4: Convert to Machine Code</h1>
+
+<p>
+Now that you have one sinlge binary file <a>blink.a</a> you need to
+convert it to an Intel Hex file that the USB programmer can
+understand. You may or may not wish to include the EEPROM section when
+you upload in the next step.
+</p>
+
+<table class="toolChainTable">
+  <tr>
+    <th colspan="2">avr-objcopy</th>
+  </tr>
+  <tr>
+    <td class="nobreakOverflow">-O ihex</td>
+    <td>This specifies the conversion output object type. The usb
+    programmer is expecting an Intel Hex object file hence the
+    argument ihex.
+    </td>
+  </tr>
+  <tr>
+    <td class="nobreakOverflow">-R .eeprom</td>
+    <td>This argument removes the EEPROM section from the binary
+    before converting it to hex. EEPROM is the section of memory that
+    persists when the board is turned off.  Typically you want to
+    leave this part of memory alone. </td>
+  </tr>
+</table>
+
+<!--img class="icon" src="img/arduinoUpload.png"-->
+<p class="directions">
+    From the console type:
+<br><br>
+</p>
+
+</div><!--End topDiv-->
+<div class="commandline">
+
+<select id="boardSelector6" onchange="updateSelector(6)">
+  <option value="uno">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arduino Uno</option>
+  <option value="mega">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arduino Mega</option>
+</select>
+<br><br>
+  <div class="nobreakOverflow" name="uploadStep3"></div><br>
+</div>
+<div class="topDiv">
+</div><!--End topDiv-->
+
+<div class="newSection"></div>
+
+<div class="topDiv">
+
+
+<h1>Step 5: Upload</h1>
+
+<p>
+Generally when uploading code to a microcontroller you need a separate
+dedicated device called a programmer. There are many different types
+of programmers out there.  Lucky for you every Arduino has a USB
+programmer right on the board! 
+</p>
+
+<table class="toolChainTable">
+  <tr>
+    <th colspan="2">avrdude</th>
+  </tr>
+  <tr>
+    <td class="nobreakOverflow">-v</td>
+    <td>Specifies verbose output. Optional.</td>
+  <tr>
+    <td class="nobreakOverflow">-p partno</td>
+    <td>This specifies the type of the MCU you have but will have a
+    different format than the compiler argument. To find your partno
+    you can type "avrdude -p ?" on the command line to get a listing
+    of valid parts. <br><br><span class="example">For example, for the Uno the
+    ATmega128p is listed as m328p which means we would pass the argument "-p m328p" to the uploader.</span></td>
+  </tr>
+  <tr>
+    <td>-c programmer-id</td>
+    <td> Every Arduino board's programmer type is different and can be
+      found <a href="http://arduino.cc/en/uploads/Main/boards.txt">here</a>. You
+      can get a listing of supported programmers by typing "avrdude -c
+      ?". <br><br><span class="example">For example, for the Mega 2560 the programmer-id is listed as
+      uno.upload.protocol=stk500v2. This means we would pass the argument "-c stk500v2" to the uploader.</span></td>
+  </tr>
+<tr>
+  <td>-P port</td>
+  <td>This refers to the usb port your Arduino is plugged into. This
+    will be the same port you use when working with the Arduino IDE
+    under Tools -> Serial Port.<br><br> <span class="warning">Do not simply
+    copy and paste the code below without changing this argument to the
+    correct port. You must select the port your board is
+    connected to.</span>
+  </td>
+</tr>
+<tr>
+  <td class="nobreakOverflow">-U memtype:op:filename</td>
+  <td>This specifies the memory operation you want avrdude to
+    preform.<br><br><span class="example">Since we want to write the
+    hex file to flash memory, our argument will be "-U
+    flash:w:blink.hex"</span></td>
+</tr>
+</table>
+
+<p>
+The avrdude tool can do much more then upload your code. It's
+interactive mode will allow you to explore memory contents of your
+board.  As you gain more experience you may want to write to other
+parts of memory (e.g. eeprom). Learn more by taking a look at
+avrdude's man page or the
+avrdude <a href="http://download-mirror.savannah.gnu.org/releases/avrdude/avrdude-doc-6.1.pdf">
+manual</a>.
+</p>
+
+
+<p class="directions">
+From the console type:
+<br><br></p>
+
+
+
+</div><!--End topDiv-->
+<div class="commandline">
+<select id="boardSelector7" onchange="updateSelector(7)">
+  <option value="uno">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arduino Uno</option>
+  <option value="mega">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arduino Mega</option>
+</select><br><br>
+  <div class="nobreakOverflow" name="uploadStep4"></div><br>
+</div>
+<div class="topDiv">
+  
+  <div class="anaside">
+    <h3 class="gotcha">Gotchas!</h3>
+    <p>
+      
+      <ul>
+	<li>
+	  avrdude: stk500v2_ReceiveMessage(): timeout <br>If you receive
+	  an error message like this when uploading try using the
+	  programmer-id argument "-c arduino".<br><br>
+	</li>
+	<li>
+	  !!! If anywhere in your code you have three bang marks in a
+	  row AND you are using the Mega 2560, the bootloader will go
+	  into Monitor mode and will not upload.
+	</li>
+      </ul>
+    </p>
+  </div>
+</div>
+
+
+
+
+<!--
+
+
+
+<table>
+<tr><td class="tableheader" colspan="2">&nbsp;Text
+Editors&nbsp;&nbsp;</td> <td class="tableheader"
+colspan="2">&nbsp;IDEs&nbsp;&nbsp;</td> </tr>
+<tr><td colspan="2">
+    <ul>
+<li> Emacs &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+<li> Vi </li>
+<li> gedit</li>
+<li> Notepad++</li>
+    </ul>
+</td>
+<td colspan="2"> 
+    <ul>
+<li> Eclipse&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+<li> Code::Blocks</li>
+<li> CodeLite</li>
+<li> Atmel Studio</li>
+    </ul>
+</td>
+</tr>
+</table>
+-->
+
+
+
+
+
+<!--
+atmega2560
+
+CC=avr-gcc
+OBJCP=avr-objcopy
+CFLAGS=-mmcu=$(MCU) -Iincludes
+AVRDUDE_RUNNING=`ps -e | grep "eclipse" > /dev/null`
+UPLOAD=avrdude -F -v -p m2560 -c stk500 -P /dev/ttyACM0 -U flash:w:hex/blink.hex
+UPLOADPUTTY=avrdude -F -v -p m2560 -c stk500 -P /dev/ttyACM0 -U flash:w:hex/blink.hex; putty -load arduino
+
+all: blink.hex
+
+
+uploadPutty: 
+	if  ps -e | grep "avrdude" > /dev/null ; then echo "ABORT: avrdude is running" ;  exit ; else if ps -e | grep "putty" > /dev/null ; then echo "ABORT: putty is running" ;  exit ; else $(UPLOADPUTTY); fi ; fi;
+	
+upload:
+	if  ps -e | grep "avrdude" > /dev/null ; then echo "ABORT: avrdude is running" ;  exit ; else $(UPLOAD); fi; 
+
+
+	
+blink.hex: folders blink.a
+	$(OBJCP) -O ihex -R .eeprom bin/blink.a hex/blink.hex
+
+blink.a: blink.o ssd1306.o
+	$(CC) $(CFLAGS) obj/ssd1306.o obj/blink.o -o bin/blink.a
+
+blink.o:  src/blink.c 
+	$(CC) -Os -DF_CPU=$(CLOCKSPEED) $(CFLAGS) -c src/blink.c -o obj/blink.o
+
+ssd1306.o: src/ssd1306.c	
+	$(CC) -Os -DF_CPU=$(CLOCKSPEED) $(CFLAGS) -c src/ssd1306.c -o obj/ssd1306.o	 
+
+folders:
+	if ! [ -d "./obj" ]; then mkdir obj ; fi; if ! [ -d "./bin" ]; then mkdir bin ; fi; if ! [ -d "./hex" ]; then mkdir hex ; fi  
+	
+clean:
+	rm -rf obj bin hex
+
+
+an uploader. To do this we will convert Arduino's familiar steps:
+
+
+
+
+$(CC) -Os -DF_CPU=$(CLOCKSPEED) $(CFLAGS) -c src/blink.c -o obj/blink.o
+
+
+<!--
+
+<H1>Installing the AVR Toolchain</H1>
+
+
+
+Examples:
+http://www.thesitewizard.com/general/set-cron-job.shtml
+https://www.atlassian.com/git/tutorials/merging-vs-rebasing/conceptual-overview
+
+Arduino Shield is just that: a shield. 
+
+This tutorial is for you if:
+
+In this tutorial I assume you are familiar with C and makefiles or are
+willing to learn on your own in these areas.
+
+Setting up your enviornment. If you're anything like me, you have the 
+If you
+Download Eclipse. 
+Specifically http://eclipse.org/downloads/packages/eclipse-ide-cc-developers/lunasr2
+
+ There is a C/C++ option Eclipse o has C/C++ option
+
+
+The Arduino is an AVR, and thus can be programmed directly without the
+Arduino IDE, but rather directly with a C compiler and a programmer or
+an uploader. To do this we will convert Arduino's familiar steps:
+
+1. Write your sketch (e.g. blink.ino)     1. Write your program (e.g. blink.c or blink.cpp)
+2. Verify it                              2. Compile it
+3. Upload it                              3. Upload it 
+
+
+======================================================================
+Installing the AVR Tool Chain
+======================================================================
+
+sudo apt-get install gcc-avr avrdude avrdude-doc binutils-avr avr-libc gdb-avr
+
+
+gcc-avr             # the avr c compiler
+avrdude             # the programmer or uploader
+avrdude-doc         # 
+binutils-avr        # 
+avr-libc            # the avr libraries
+gdb-avr             # the avr debugger
+
+
+
+
+1. Write your program (e.g. blink.c)
+
+Do this with your favorite editor. I personally use Eclipse [link to
+eclipse tutorial] and their CDT plugin and I create a makefile
+project. I strongly recommend you use a makefile. [TODO why] 
+
+The editor you choose doesn't matter (to me). It matters to you. So
+pick one you like. [VI till I DIE!!!!!!]
+
+
+
+2. Compile it
+
+From the command line 
+
+TODO: pick change values accordingly to which board you have!!!!
+
+avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega2560 -c blink.c -o blink.o 
+avr-gcc -mmcu=atmega2560 blink.o -o blink.a 
+avr-objcopy -O ihex -R .eeprom blink.a blink.hex
+avrdude -F -v -p m2560 -c stk500 -P /dev/ttyACM0 -U flash:w:blink.hex
+
+
+Hopefully the led on your board should begin to blink.
+
+Now we have a hex file that the arduino bootloader can
+understand. Connect your big computer up to the arduino via the USB
+cable and run the following command.
+
+
+-->
+</body>
+
+
+<script>
+
+
+var UNO_BLINK_SOURCE_CODE_TEXT ="<br>\
+     <span class=\"comment\">/* blink.c -- For the Uno */</span><br>\
+<br>\
+     <span class=\"preprocessor\">#include</span> <span class=\"preprocessorinclude\">&lt;avr/io.h&gt;</span><br>\
+     <span class=\"preprocessor\">#include</span> <span class=\"preprocessorinclude\">&lt;util/delay.h&gt;</span><br>\
+      <br>\
+     <span class=\"keyword\">enum</span> { BLINK_DELAY_MS = 1000 };<br>\
+      <br>\
+     <span class=\"primitive\">int</span> <span class=\"funcname\">main</span> <span class=\"primitive\">(void)</span><br>\
+{<br>\
+<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; DDRB |= _BV(DDB5); &nbsp;&nbsp;&nbsp;&nbsp;<span class=\"comment\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* set pin 5 of PORTB for output*/</span><br>\
+<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; <span class=\"keyword\">while</span>(1) <br>\
+&nbsp;&nbsp;&nbsp;&nbsp; {<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; PORTB |= _BV(PORTB5); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"comment\">/* set pin 5 high to turn led on */</span><br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; _delay_ms(BLINK_DELAY_MS);<br>\
+<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; PORTB &= ~_BV(PORTB5); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"comment\">/* set pin 5 low to turn led off */</span><br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; _delay_ms(BLINK_DELAY_MS);<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; }<br>\
+<br>\
+      <br>\
+&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"keyword\">return</span> 0; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class=\"comment\">/* CODE SHOULD NEVER REACH HERE */</span><br>\
+     }<br>\
+<br>"
+
+var MEGA_BLINK_SOURCE_CODE_TEXT =  "<br>\
+     <span class=\"comment\">/* blink.c -- For the Mega */</span><br>\
+<br>\
+     <span class=\"preprocessor\">#include</span> <span class=\"preprocessorinclude\">&lt;avr/io.h&gt;</span><br>\
+     <span class=\"preprocessor\">#include</span> <span class=\"preprocessorinclude\">&lt;util/delay.h&gt;</span><br>\
+      <br>\
+     <span class=\"keyword\">enum</span> { BLINK_DELAY_MS = 1000 };<br>\
+      <br>\
+     <span class=\"primitive\">int</span> <span class=\"funcname\">main</span> <span class=\"primitive\">(void)</span><br>\
+{<br>\
+<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; DDRB |= _BV(DDB7); &nbsp;&nbsp;&nbsp;&nbsp;<span class=\"comment\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* set pin 7 of PORTB for output*/</span><br>\
+<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; <span class=\"keyword\">while</span>(1) <br>\
+&nbsp;&nbsp;&nbsp;&nbsp; {<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; PORTB |= _BV(PORTB7); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"comment\">/* set pin 7 high to turn led on */</span><br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; _delay_ms(BLINK_DELAY_MS);<br>\
+<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; PORTB &= ~_BV(PORTB7); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"comment\">/* set pin 7 low to turn led off */</span><br>\
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; _delay_ms(BLINK_DELAY_MS);<br>\
+&nbsp;&nbsp;&nbsp;&nbsp; }<br>\
+<br>\
+      <br>\
+&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"keyword\">return</span> 0; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class=\"comment\">/* CODE SHOULD NEVER REACH HERE */</span><br>\
+     }<br>\
+<br>"
+
+var UNO_UPLOAD_TEXT = ["avr-gcc -Os -DF_CPU=<span class=\'keyword'>16000000UL</span> -mmcu=<span class='keyword'>atmega328p</span> -c blink.c -o blink.o",
+		       "avr-gcc -mmcu=<span class='keyword'>atmega328p</span> blink.o -o blink.a",
+		       "avr-objcopy -O ihex -R .eeprom blink.a blink.hex",
+		       "avrdude -v -p <span class='keyword'>m328p</span> -c <span class='keyword'>arduino</span> -P <span class='keyword'>/dev/ttyUSB0</span> -U flash:w:blink.hex"];
+
+var MEGA_UPLOAD_TEXT = ["avr-gcc -Os -DF_CPU=<span class='keyword'>16000000UL</span> -mmcu=<span class='keyword'>atmega2560</span> -c blink.c -o blink.o",
+		 	"avr-gcc -mmcu=<span class='keyword'>atmega2560</span> blink.o -o blink.a",
+			"avr-objcopy -O ihex -R .eeprom blink.a blink.hex",
+			"avrdude -v -p <span class='keyword'>m2560</span> -c <span class='keyword'>stk500v2</span> -P <span class='keyword'>/dev/ttyACM0</span> -U flash:w:blink.hex"]
+
+
+function updateSelector(selectIndex)
+{
+	var select = document.getElementById("boardSelector" + selectIndex);
+	var boardType = select.options[select.selectedIndex].value;
+	updateBlinkSourceCode(boardType);
+	updateUploadSourceCode(boardType);
+
+	var boardSelectorTotal = 10;
+	for(var i=0;i<boardSelectorTotal;i++)
+	{
+		var otherSelector = document.getElementById("boardSelector" + i);
+		if(otherSelector)
+		{
+			var otherType = otherSelector.options[otherSelector.selectedIndex].value;
+			if(boardType!=otherType)
+				otherSelector.value = boardType;
+		}
+	}
+}
+
+function updateBlinkSourceCode(boardType)
+{
+	var sourceCode = MEGA_BLINK_SOURCE_CODE_TEXT;
+	if(boardType == "uno")
+		sourceCode = UNO_BLINK_SOURCE_CODE_TEXT;
+
+	var srcElements = document.getElementsByName("blinkSourceCode");
+	for(var i=0; i<srcElements.length; i++)
+	{
+		srcElements[i].innerHTML=sourceCode;
+	}	
+}
+
+function updateUploadSourceCode(boardType)
+{
+	var uploadCode = MEGA_UPLOAD_TEXT;
+	if(boardType == "uno")
+		uploadCode = UNO_UPLOAD_TEXT;
+
+	for(var step=1;step<=4;step++)
+	{
+		var srcElements = document.getElementsByName("uploadStep" + step);
+		for(var i=0; i<srcElements.length; i++)
+		{
+			srcElements[i].innerHTML=uploadCode[step-1];
+		}
+	}
+}
+
+
+
+function updateDistroCode()
+{
+	var select = document.getElementById("distroSelector");
+	var distroType = select.options[select.selectedIndex].value;
+	if(distroType == "debian")
+	{
+		document.getElementById("installer").innerHTML="apt-get";
+	}
+	else
+		document.getElementById("installer").innerHTML="yum";
+}
+
+
+
+</script>
+
+</html>
+
