@@ -1,0 +1,11 @@
+#THIS CHANGES FROM PC TP PC!!!
+UPLOADER_PORT=/dev/ttyACM0
+
+#Set for AVR C libraries
+MCU=atmega2560
+CLOCKSPEED=16000000UL
+
+#Set for avrdude
+PARTNO=m2560
+PROGRAMMER_ID=stk500
+

@@ -1,0 +1,11 @@
+#THIS CHANGES FROM PC To PC!!!
+UPLOADER_PORT=/dev/ttyUSB0
+
+#Set for AVR C libraries
+MCU=atmega328p
+CLOCKSPEED=16000000UL
+
+#Set for avrdude
+PARTNO=m328p
+PROGRAMMER_ID=arduino
+
